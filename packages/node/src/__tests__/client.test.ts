@@ -170,6 +170,45 @@ describe('LogSeal Client', () => {
       expect(result).toEqual({ sent: 0 });
       await client.shutdown();
     });
+
+    it('re-queues events when flush fails', async () => {
+      const error500 = {
+        ok: false,
+        status: 500,
+        json: () =>
+          Promise.resolve({
+            error: { type: 'internal_error', code: 'server_error', message: 'Internal error' },
+          }),
+      };
+
+      const fetchMock = vi.fn()
+        .mockResolvedValueOnce(error500) // first flush fails
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({ accepted: 1, rejected: 0, events: [], object: 'batch' }),
+        });
+
+      vi.stubGlobal('fetch', fetchMock);
+
+      // maxRetries: 0 to skip retry delays entirely — we only test re-queue behavior
+      const client = new LogSeal({ apiKey: 'test_key', batchSize: 100, maxRetries: 0 });
+      await client.emit({
+        action: 'user.created',
+        organizationId: 'org_1',
+        actor: { id: 'actor_1' },
+      });
+
+      // First flush fails — events should be re-queued
+      await expect(client.flush()).rejects.toThrow();
+
+      // Second flush succeeds with the re-queued events
+      const result = await client.flush();
+      expect(result).toEqual({ sent: 1 });
+
+      await client.shutdown();
+    });
   });
 
   // ─── shutdown() ───────────────────────────────────────
