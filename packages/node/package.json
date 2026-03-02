@@ -1,0 +1,63 @@
+{
+  "name": "@logseal/node",
+  "version": "0.0.1",
+  "description": "Official Node.js SDK for LogSeal - Audit logging for B2B SaaS",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./express": {
+      "types": "./dist/middleware/express.d.ts",
+      "import": "./dist/middleware/express.js"
+    },
+    "./fastify": {
+      "types": "./dist/middleware/fastify.d.ts",
+      "import": "./dist/middleware/fastify.js"
+    },
+    "./hono": {
+      "types": "./dist/middleware/hono.d.ts",
+      "import": "./dist/middleware/hono.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "express": ["./dist/middleware/express.d.ts"],
+      "fastify": ["./dist/middleware/fastify.d.ts"],
+      "hono": ["./dist/middleware/hono.d.ts"]
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": ["audit", "logging", "audit-log", "compliance", "soc2", "b2b", "saas"],
+  "author": "LogSeal",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LogSeal/logseal-sdks.git",
+    "directory": "packages/node"
+  },
+  "homepage": "https://github.com/LogSeal/logseal-sdks/tree/main/packages/node#readme",
+  "bugs": {
+    "url": "https://github.com/LogSeal/logseal-sdks/issues"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^20.11.0",
+    "fastify": "^5.2.0",
+    "hono": "^4.7.0",
+    "typescript": "^5.3.3",
+    "vitest": "^3.0.0",
+    "vite-tsconfig-paths": "^6.0.5"
+  }
+}

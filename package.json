@@ -1,0 +1,23 @@
+{
+  "name": "logseal-sdks",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Official SDKs for LogSeal - Audit logging for B2B SaaS",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "packageManager": "npm@10.8.0"
+}
