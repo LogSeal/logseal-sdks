@@ -82,6 +82,157 @@ const logseal = new LogSeal({
 });
 ```
 
+## Middleware
+
+The SDK provides middleware for automatic HTTP audit logging. Every request flowing through your application is captured as an audit event — no manual `emit()` calls needed.
+
+Middleware is available for **Express**, **Fastify**, and **Hono**. All three share the same configuration interface and are duck-typed, so they add no extra dependencies to your project.
+
+### Express
+
+```typescript
+import express from 'express';
+import { LogSeal } from '@logseal/node';
+
+const app = express();
+const logseal = new LogSeal({ apiKey: 'sk_live_...' });
+
+app.use(logseal.express({
+  actor: (req) => ({
+    id: req.headers['x-user-id'] as string,
+    name: req.headers['x-user-name'] as string,
+  }),
+  organizationId: 'org_acme',
+}));
+
+app.get('/users/:id', (req, res) => {
+  res.json({ id: req.params.id });
+});
+// Emits action: "get.users.:id"
+```
+
+### Fastify
+
+```typescript
+import Fastify from 'fastify';
+import { LogSeal } from '@logseal/node';
+
+const fastify = Fastify();
+const logseal = new LogSeal({ apiKey: 'sk_live_...' });
+
+fastify.register(logseal.fastify({
+  actor: (req) => ({
+    id: req.headers['x-user-id'] as string,
+    name: req.headers['x-user-name'] as string,
+  }),
+  organizationId: 'org_acme',
+}));
+
+fastify.get('/users/:id', async (req, reply) => {
+  return { id: req.params.id };
+});
+// Emits action: "get.users.:id"
+```
+
+### Hono
+
+```typescript
+import { Hono } from 'hono';
+import { LogSeal } from '@logseal/node';
+
+const app = new Hono();
+const logseal = new LogSeal({ apiKey: 'sk_live_...' });
+
+app.use(logseal.hono({
+  actor: (c) => ({
+    id: c.req.header('x-user-id'),
+    name: c.req.header('x-user-name'),
+  }),
+  organizationId: 'org_acme',
+}));
+
+app.get('/users/:id', (c) => {
+  return c.json({ id: c.req.param('id') });
+});
+// Emits action: "get.users.:id"
+```
+
+### Middleware Configuration
+
+All middleware accepts the same configuration options:
+
+```typescript
+logseal.express({
+  // Required — extract the actor from each request.
+  // Return null to skip logging for a request.
+  actor: (req) => ({
+    id: req.user.id,
+    name: req.user.name,
+    email: req.user.email,
+  }),
+
+  // Required — can be a static string or a function for multi-tenant apps.
+  organizationId: (req) => req.headers['x-org-id'] as string,
+
+  // Paths to exclude from audit logging (supports * wildcards).
+  exclude: ['/health', '/metrics', '/api/internal/*'],
+
+  // Map specific routes to custom action names instead of auto-generated ones.
+  actionMap: {
+    'POST /auth/login': 'user.login',
+    'POST /auth/logout': 'user.logout',
+    'DELETE /users/:id': 'user.delete',
+  },
+
+  // Capture the request body in event metadata. Default: false.
+  captureBody: true,
+
+  // Capture the HTTP status code in event metadata. Default: true.
+  captureStatus: true,
+
+  // Add custom metadata to every event.
+  enrichMetadata: (req, metadata) => ({
+    ...metadata,
+    tenantId: req.headers['x-tenant-id'],
+  }),
+
+  // Custom error handler. Default: console.error.
+  onError: (error) => myLogger.error('Audit logging failed', error),
+});
+```
+
+### Action Generation
+
+Actions are automatically generated from the HTTP method and route pattern using dot notation:
+
+| Request | Route Pattern | Generated Action |
+|---|---|---|
+| `GET /users` | `/users` | `get.users` |
+| `POST /users` | `/users` | `post.users` |
+| `GET /users/123` | `/users/:id` | `get.users.:id` |
+| `PUT /orgs/1/members/2` | `/orgs/:orgId/members/:memberId` | `put.orgs.:orgId.members.:memberId` |
+
+Use `actionMap` to override any auto-generated action with a human-readable name. The map is checked in order: exact path first, then route pattern.
+
+```typescript
+actionMap: {
+  'POST /users': 'user.create',           // Matches POST /users exactly
+  'GET /users/:id': 'user.read',          // Matches any GET /users/:id
+}
+```
+
+### How It Works
+
+Each middleware hooks into the framework's response lifecycle so that requests are never blocked:
+
+- **Express** — listens to the `res.on('finish')` event after calling `next()`.
+- **Fastify** — registers an `onResponse` hook via the Fastify plugin system.
+- **Hono** — calls `await next()`, then emits the event after downstream handlers complete.
+
+Events are queued into the SDK's batching system (configurable via `batchSize` and `flushIntervalMs`) and sent to the LogSeal API in bulk. If the actor or organization ID cannot be resolved for a request, the event is silently skipped.
+
+IP addresses are resolved with fallback: `req.ip` (Express/Fastify) -> `X-Forwarded-For` header -> `X-Real-IP` header. The `User-Agent` and `X-Request-ID` headers are captured automatically when present.
+
 ## API Reference
 
 ### Events
