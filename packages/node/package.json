@@ -1,6 +1,6 @@
 {
   "name": "@logseal/node",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Official Node.js SDK for LogSeal - Audit logging for B2B SaaS",
   "type": "module",
   "exports": {
@@ -23,14 +23,23 @@
   },
   "typesVersions": {
     "*": {
-      "express": ["./dist/middleware/express.d.ts"],
-      "fastify": ["./dist/middleware/fastify.d.ts"],
-      "hono": ["./dist/middleware/hono.d.ts"]
+      "express": [
+        "./dist/middleware/express.d.ts"
+      ],
+      "fastify": [
+        "./dist/middleware/fastify.d.ts"
+      ],
+      "hono": [
+        "./dist/middleware/hono.d.ts"
+      ]
     }
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
@@ -39,7 +48,15 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
-  "keywords": ["audit", "logging", "audit-log", "compliance", "soc2", "b2b", "saas"],
+  "keywords": [
+    "audit",
+    "logging",
+    "audit-log",
+    "compliance",
+    "soc2",
+    "b2b",
+    "saas"
+  ],
   "author": "LogSeal",
   "license": "MIT",
   "repository": {
