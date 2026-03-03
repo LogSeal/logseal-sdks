@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "36066fcfc394",
+  "strategy": "manual-commit",
+  "branch": "feat/embeddable-viewer",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "packages/node/src/__tests__/client.test.ts",
+    "packages/node/src/client.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/36/066fcfc394/0/metadata.json",
+      "transcript": "/36/066fcfc394/0/full.jsonl",
+      "context": "/36/066fcfc394/0/context.md",
+      "content_hash": "/36/066fcfc394/0/content_hash.txt",
+      "prompt": "/36/066fcfc394/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 8976,
+    "cache_creation_tokens": 143893,
+    "cache_read_tokens": 5803926,
+    "output_tokens": 1262,
+    "api_call_count": 57
+  }
+}

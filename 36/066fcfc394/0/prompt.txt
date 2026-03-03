@@ -1,0 +1,45 @@
+You know what logseal is and does, now we need to market it and create hype, to get users - we also need to make sure its battle tested (maybe before we launch - how??)
+
+---
+
+I'd love for you to write up a comprehensive plan on Battle Testing Before Launch                                                                                                                                                                          
+                                                                                                                                                                                                        
+  You're actually in a strong position already (74 integration tests, CI with schema drift detection, security tests for IDOR/mass assignment/rate limiting). But "battle tested" means more than       
+  passing tests. Here's what I'd do:                                                                                                                                                                    
+                                                                                                                                                                                                        
+  1. Stress & Load Testing
+
+  - k6 or Artillery to hammer the event ingestion endpoint — this is your hot path. You need to know your throughput ceiling on that Hetzner box (events/sec, P99 latency under load).
+  - Test the hash chain computation under concurrent writes — race conditions here would be catastrophic for integrity.
+  - Load test BullMQ queue backpressure — what happens when events come in faster than the worker processes them?
+
+  2. Chaos / Failure Testing
+
+  - Kill Redis mid-batch — does the SDK retry gracefully? Do events get lost?
+  - Kill the worker mid-hash-chain computation — does the chain recover or corrupt?
+  - BYOD connection drops — does failover to LogSeal's DB actually work?
+  - Simulate Stripe webhook failures during checkout
+
+  3. Dogfood It
+
+  - Use LogSeal to audit LogSeal itself. Instrument your own dashboard — login events, API key creation, settings changes. This is both a battle test AND a marketing story ("we eat our own dogfood").
+
+  4. Security Audit
+
+  - You have security tests, but a quick pass with npm audit, dependency scanning, and a manual review of the auth/crypto code paths would be smart before public launch. - it would be great to have understandings of these things and to dogfood it.
+
+---
+
+yes, tackle these issues
+
+---
+
+whats next on the battle test plan
+
+---
+
+let's close out phase 1 — add 2FA rate limiting
+
+---
+
+[Request interrupted by user for tool use]
