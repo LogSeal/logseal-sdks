@@ -3,6 +3,14 @@ name: Publish
 on:
   workflow_dispatch:
     inputs:
+      package:
+        description: 'Package to publish'
+        required: true
+        type: choice
+        options:
+          - node
+          - viewer-core
+          - react
       bump:
         description: 'Version bump type'
         required: true
@@ -40,13 +48,15 @@ jobs:
       - name: Bump version
         id: version
         run: |
-          cd packages/node
+          cd packages/${{ inputs.package }}
           npm version "${{ inputs.bump }}" --no-git-tag-version
           VERSION=$(node -p "require('./package.json').version")
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "package_name=$PACKAGE_NAME" >> "$GITHUB_OUTPUT"
 
-      - name: Publish @logseal/node
-        run: npm publish --workspace packages/node
+      - name: Publish
+        run: npm publish --workspace packages/${{ inputs.package }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -54,7 +64,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add packages/node/package.json
-          git commit -m "release: @logseal/node@${{ steps.version.outputs.version }}"
-          git tag "node-v${{ steps.version.outputs.version }}"
+          git add packages/${{ inputs.package }}/package.json
+          git commit -m "release: ${{ steps.version.outputs.package_name }}@${{ steps.version.outputs.version }}"
+          git tag "${{ inputs.package }}-v${{ steps.version.outputs.version }}"
           git push origin HEAD --tags

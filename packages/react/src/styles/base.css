@@ -1,0 +1,348 @@
+/* LogSeal Audit Log Viewer — Base Styles
+   All rules use :where() for zero specificity, making them trivially overridable.
+   Customize via --logseal-* CSS custom properties or the classNames prop. */
+
+:where(.logseal-viewer) {
+  --logseal-color-primary: #2563eb;
+  --logseal-color-primary-hover: #1d4ed8;
+  --logseal-color-bg: #ffffff;
+  --logseal-color-bg-secondary: #f9fafb;
+  --logseal-color-border: #e5e7eb;
+  --logseal-color-text: #111827;
+  --logseal-color-text-secondary: #4b5563;
+  --logseal-color-text-muted: #9ca3af;
+  --logseal-color-error: #dc2626;
+  --logseal-color-error-bg: #fef2f2;
+  --logseal-font-family: system-ui, -apple-system, sans-serif;
+  --logseal-font-family-mono: ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
+  --logseal-font-size-xs: 0.75rem;
+  --logseal-font-size-sm: 0.875rem;
+  --logseal-font-size-md: 1rem;
+  --logseal-font-size-lg: 1.125rem;
+  --logseal-line-height: 1.5;
+  --logseal-border-radius: 0.375rem;
+  --logseal-border-radius-lg: 0.5rem;
+  --logseal-spacing: 0.75rem;
+  --logseal-spacing-sm: 0.5rem;
+  --logseal-spacing-lg: 1rem;
+  --logseal-row-hover-bg: #f3f4f6;
+  --logseal-row-active-bg: #eff6ff;
+  --logseal-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --logseal-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --logseal-transition-speed: 150ms;
+
+  font-family: var(--logseal-font-family);
+  font-size: var(--logseal-font-size-sm);
+  line-height: var(--logseal-line-height);
+  color: var(--logseal-color-text);
+  background: var(--logseal-color-bg);
+}
+
+/* ─── Filter Bar ─── */
+
+:where(.logseal-filter-bar) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--logseal-spacing);
+  padding: var(--logseal-spacing-lg);
+  border-bottom: 1px solid var(--logseal-color-border);
+}
+
+:where(.logseal-filter-bar__field) {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 140px;
+  flex: 1;
+}
+
+:where(.logseal-filter-bar__label) {
+  font-size: var(--logseal-font-size-xs);
+  font-weight: 500;
+  color: var(--logseal-color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+:where(.logseal-filter-bar__select),
+:where(.logseal-filter-bar__input) {
+  padding: 0.375rem 0.5rem;
+  border: 1px solid var(--logseal-color-border);
+  border-radius: var(--logseal-border-radius);
+  background: var(--logseal-color-bg);
+  color: var(--logseal-color-text);
+  font-size: var(--logseal-font-size-sm);
+  font-family: var(--logseal-font-family);
+  transition: border-color var(--logseal-transition-speed);
+}
+
+:where(.logseal-filter-bar__select):focus,
+:where(.logseal-filter-bar__input):focus {
+  outline: 2px solid var(--logseal-color-primary);
+  outline-offset: -1px;
+  border-color: var(--logseal-color-primary);
+}
+
+/* ─── Table ─── */
+
+:where(.logseal-table-wrapper) {
+  overflow-x: auto;
+}
+
+:where(.logseal-table) {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+:where(.logseal-header-row) {
+  border-bottom: 2px solid var(--logseal-color-border);
+}
+
+:where(.logseal-header-cell) {
+  padding: var(--logseal-spacing) var(--logseal-spacing-lg);
+  text-align: left;
+  font-size: var(--logseal-font-size-xs);
+  font-weight: 600;
+  color: var(--logseal-color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+}
+
+:where(.logseal-row) {
+  border-bottom: 1px solid var(--logseal-color-border);
+  cursor: pointer;
+  transition: background-color var(--logseal-transition-speed);
+}
+
+:where(.logseal-row):hover {
+  background-color: var(--logseal-row-hover-bg);
+}
+
+:where(.logseal-row):focus-visible {
+  outline: 2px solid var(--logseal-color-primary);
+  outline-offset: -2px;
+}
+
+:where(.logseal-row--expanded) {
+  background-color: var(--logseal-row-active-bg);
+}
+
+:where(.logseal-cell) {
+  padding: var(--logseal-spacing) var(--logseal-spacing-lg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+}
+
+:where(.logseal-row__detail-row) {
+  border-bottom: 1px solid var(--logseal-color-border);
+}
+
+:where(.logseal-row__detail-cell) {
+  padding: 0;
+}
+
+/* ─── Detail Panel ─── */
+
+:where(.logseal-detail) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--logseal-spacing-lg);
+  padding: var(--logseal-spacing-lg);
+  background: var(--logseal-color-bg-secondary);
+}
+
+:where(.logseal-detail__section) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--logseal-spacing-sm);
+}
+
+:where(.logseal-detail__heading) {
+  font-size: var(--logseal-font-size-xs);
+  font-weight: 600;
+  color: var(--logseal-color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+:where(.logseal-detail__list) {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem 0.75rem;
+  margin: 0;
+  font-size: var(--logseal-font-size-sm);
+}
+
+:where(.logseal-detail__list dt) {
+  color: var(--logseal-color-text-muted);
+  font-weight: 500;
+}
+
+:where(.logseal-detail__list dd) {
+  margin: 0;
+  word-break: break-all;
+}
+
+:where(.logseal-detail__code) {
+  padding: var(--logseal-spacing-sm);
+  background: var(--logseal-color-bg);
+  border: 1px solid var(--logseal-color-border);
+  border-radius: var(--logseal-border-radius);
+  font-family: var(--logseal-font-family-mono);
+  font-size: var(--logseal-font-size-xs);
+  overflow-x: auto;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+:where(.logseal-detail__hash) {
+  font-family: var(--logseal-font-family-mono);
+  font-size: var(--logseal-font-size-xs);
+  word-break: break-all;
+}
+
+/* ─── Pagination ─── */
+
+:where(.logseal-pagination) {
+  display: flex;
+  justify-content: center;
+  padding: var(--logseal-spacing-lg);
+  border-top: 1px solid var(--logseal-color-border);
+}
+
+:where(.logseal-pagination__button) {
+  padding: 0.5rem 1.5rem;
+  background: var(--logseal-color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--logseal-border-radius);
+  font-size: var(--logseal-font-size-sm);
+  font-family: var(--logseal-font-family);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--logseal-transition-speed);
+}
+
+:where(.logseal-pagination__button):hover:not(:disabled) {
+  background: var(--logseal-color-primary-hover);
+}
+
+:where(.logseal-pagination__button):disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ─── Empty State ─── */
+
+:where(.logseal-empty) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--logseal-spacing);
+  padding: 3rem var(--logseal-spacing-lg);
+  text-align: center;
+}
+
+:where(.logseal-empty__message) {
+  color: var(--logseal-color-text-muted);
+  font-size: var(--logseal-font-size-md);
+  margin: 0;
+}
+
+:where(.logseal-empty__button) {
+  padding: 0.375rem 1rem;
+  background: transparent;
+  color: var(--logseal-color-primary);
+  border: 1px solid var(--logseal-color-primary);
+  border-radius: var(--logseal-border-radius);
+  font-size: var(--logseal-font-size-sm);
+  font-family: var(--logseal-font-family);
+  cursor: pointer;
+  transition: all var(--logseal-transition-speed);
+}
+
+:where(.logseal-empty__button):hover {
+  background: var(--logseal-color-primary);
+  color: #fff;
+}
+
+/* ─── Error State ─── */
+
+:where(.logseal-error) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--logseal-spacing);
+  padding: 2rem var(--logseal-spacing-lg);
+  background: var(--logseal-color-error-bg);
+  border-radius: var(--logseal-border-radius-lg);
+  margin: var(--logseal-spacing-lg);
+}
+
+:where(.logseal-error__message) {
+  color: var(--logseal-color-error);
+  font-size: var(--logseal-font-size-sm);
+  margin: 0;
+}
+
+:where(.logseal-error__button) {
+  padding: 0.375rem 1rem;
+  background: transparent;
+  color: var(--logseal-color-error);
+  border: 1px solid var(--logseal-color-error);
+  border-radius: var(--logseal-border-radius);
+  font-size: var(--logseal-font-size-sm);
+  font-family: var(--logseal-font-family);
+  cursor: pointer;
+  transition: all var(--logseal-transition-speed);
+}
+
+:where(.logseal-error__button):hover {
+  background: var(--logseal-color-error);
+  color: #fff;
+}
+
+/* ─── Loading State ─── */
+
+:where(.logseal-loading) {
+  padding: var(--logseal-spacing-lg);
+}
+
+:where(.logseal-loading__row) {
+  padding: var(--logseal-spacing) 0;
+}
+
+:where(.logseal-loading__shimmer) {
+  height: 1rem;
+  background: linear-gradient(
+    90deg,
+    var(--logseal-color-bg-secondary) 25%,
+    var(--logseal-color-border) 50%,
+    var(--logseal-color-bg-secondary) 75%
+  );
+  background-size: 200% 100%;
+  border-radius: var(--logseal-border-radius);
+  animation: logseal-shimmer 1.5s ease-in-out infinite;
+}
+
+:where(.logseal-loading__row:nth-child(odd) .logseal-loading__shimmer) {
+  width: 80%;
+}
+
+:where(.logseal-loading__row:nth-child(even) .logseal-loading__shimmer) {
+  width: 60%;
+}
+
+@keyframes logseal-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "name": "@logseal/viewer-core",
+  "version": "0.0.1",
+  "description": "Framework-agnostic core for the LogSeal embeddable audit log viewer",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "audit",
+    "logging",
+    "audit-log",
+    "viewer",
+    "embeddable"
+  ],
+  "author": "LogSeal",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LogSeal/logseal-sdks.git",
+    "directory": "packages/viewer-core"
+  },
+  "homepage": "https://github.com/LogSeal/logseal-sdks/tree/main/packages/viewer-core#readme",
+  "bugs": {
+    "url": "https://github.com/LogSeal/logseal-sdks/issues"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3",
+    "vitest": "^3.0.0",
+    "vite-tsconfig-paths": "^6.0.5"
+  }
+}

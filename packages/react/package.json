@@ -1,0 +1,70 @@
+{
+  "name": "@logseal/react",
+  "version": "0.0.1",
+  "description": "React components for the LogSeal embeddable audit log viewer",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./dist/styles/base.css"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": [
+    "*.css"
+  ],
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "audit",
+    "logging",
+    "audit-log",
+    "viewer",
+    "react",
+    "embeddable"
+  ],
+  "author": "LogSeal",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LogSeal/logseal-sdks.git",
+    "directory": "packages/react"
+  },
+  "homepage": "https://github.com/LogSeal/logseal-sdks/tree/main/packages/react#readme",
+  "bugs": {
+    "url": "https://github.com/LogSeal/logseal-sdks/issues"
+  },
+  "dependencies": {
+    "@logseal/viewer-core": "*"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/react": "^16.0.0",
+    "@types/node": "^20.11.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "jsdom": "^26.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.3",
+    "vitest": "^3.0.0",
+    "vite-tsconfig-paths": "^6.0.5"
+  }
+}
