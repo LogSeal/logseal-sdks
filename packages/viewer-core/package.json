@@ -1,6 +1,6 @@
 {
   "name": "@logseal/viewer-core",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Framework-agnostic core for the LogSeal embeddable audit log viewer",
   "type": "module",
   "exports": {
