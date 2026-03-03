@@ -40,11 +40,15 @@ export function resolveAction(
   return generateAction(method, routePattern ?? path);
 }
 
+const EXCLUDED_METHODS = new Set(['OPTIONS', 'HEAD']);
+
 export function buildEvent<TRequest>(
   config: MiddlewareConfig<TRequest>,
   request: TRequest,
   data: ResolvedRequestData
 ): EmitEventInput | null {
+  if (EXCLUDED_METHODS.has(data.method.toUpperCase())) return null;
+
   const actor = config.actor(request);
   if (!actor?.id) return null;
 
