@@ -137,14 +137,19 @@ export class LogSeal {
       return { sent: 0 };
     }
 
-    const events = [...this.queue];
-    this.queue = [];
+    const events = this.queue.splice(0, this.queue.length);
 
-    const response = await this.request<BatchEmitResponse>('POST', '/v1/events/batch', {
-      events: events.map((e) => this.formatEvent(e)),
-    });
+    try {
+      const response = await this.request<BatchEmitResponse>('POST', '/v1/events/batch', {
+        events: events.map((e) => this.formatEvent(e)),
+      });
 
-    return { sent: response.accepted };
+      return { sent: response.accepted };
+    } catch (err) {
+      // Re-queue events that failed to send so they can be retried on the next flush
+      this.queue.unshift(...events);
+      throw err;
+    }
   }
 
   /**
