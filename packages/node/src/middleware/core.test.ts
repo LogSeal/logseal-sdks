@@ -115,6 +115,18 @@ describe('buildEvent', () => {
     });
   });
 
+  it('returns null for OPTIONS requests', () => {
+    const request = { user: { id: 'user-1', orgId: 'org-1' } };
+    const event = buildEvent(baseConfig, request, { ...baseData, method: 'OPTIONS' });
+    expect(event).toBeNull();
+  });
+
+  it('returns null for HEAD requests', () => {
+    const request = { user: { id: 'user-1', orgId: 'org-1' } };
+    const event = buildEvent(baseConfig, request, { ...baseData, method: 'HEAD' });
+    expect(event).toBeNull();
+  });
+
   it('returns null when actor is missing', () => {
     const event = buildEvent(baseConfig, {}, baseData);
     expect(event).toBeNull();
