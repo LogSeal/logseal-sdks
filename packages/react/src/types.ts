@@ -19,6 +19,9 @@ export interface ColumnDef {
 // Class names for style overrides
 export interface ClassNames {
   root?: string;
+  header?: string;
+  footer?: string;
+  actionBadge?: string;
   filterBar?: string;
   table?: string;
   headerRow?: string;
@@ -32,6 +35,21 @@ export interface ClassNames {
 }
 
 // Sub-component props
+export interface HeaderProps {
+  title: string;
+  organization?: string;
+  className?: string;
+}
+
+export interface FooterProps {
+  className?: string;
+}
+
+export interface ActionBadgeProps {
+  action: string;
+  className?: string;
+}
+
 export interface FilterBarProps {
   actions: string[];
   filters: ViewerFilters;
@@ -87,6 +105,9 @@ export interface LoadingStateProps {
 
 // Replaceable sub-components
 export interface Components {
+  Header?: ComponentType<HeaderProps>;
+  Footer?: ComponentType<FooterProps>;
+  ActionBadge?: ComponentType<ActionBadgeProps>;
   FilterBar?: ComponentType<FilterBarProps>;
   EventTable?: ComponentType<EventTableProps>;
   EventRow?: ComponentType<EventRowProps>;
@@ -103,6 +124,10 @@ export interface AuditLogViewerProps {
   baseUrl?: string;
   onTokenExpired?: () => Promise<string> | string;
   pageSize?: number;
+  title?: string;
+  organization?: string;
+  showHeader?: boolean;
+  showBranding?: boolean;
   filters?: ViewerFilters;
   columns?: ColumnDef[];
   classNames?: ClassNames;

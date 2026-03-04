@@ -8,6 +8,9 @@ export { Pagination } from './components/Pagination.js';
 export { EmptyState } from './components/EmptyState.js';
 export { ErrorState } from './components/ErrorState.js';
 export { LoadingState } from './components/LoadingState.js';
+export { ActionBadge } from './components/ActionBadge.js';
+export { Header } from './components/Header.js';
+export { Footer } from './components/Footer.js';
 
 // Hooks
 export { useAuditLog } from './hooks/use-audit-log.js';
@@ -28,6 +31,9 @@ export type {
   EmptyStateProps,
   ErrorStateProps,
   LoadingStateProps,
+  HeaderProps,
+  FooterProps,
+  ActionBadgeProps,
 } from './types.js';
 
 // Re-export core types consumers commonly need
