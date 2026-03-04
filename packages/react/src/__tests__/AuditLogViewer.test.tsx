@@ -149,4 +149,65 @@ describe('AuditLogViewer', () => {
       expect(screen.getByTestId('custom-filter')).toBeInTheDocument();
     });
   });
+
+  it('renders header by default with title', () => {
+    globalThis.fetch = vi.fn().mockReturnValue(new Promise(() => {}));
+    render(<AuditLogViewer token="vtk_test" />);
+    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Audit Log');
+  });
+
+  it('renders header with custom title and organization', () => {
+    globalThis.fetch = vi.fn().mockReturnValue(new Promise(() => {}));
+    render(<AuditLogViewer token="vtk_test" title="Events" organization="Acme Corp" />);
+    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Events');
+    expect(screen.getByText('Acme Corp')).toBeInTheDocument();
+  });
+
+  it('hides header when showHeader is false', () => {
+    globalThis.fetch = vi.fn().mockReturnValue(new Promise(() => {}));
+    render(<AuditLogViewer token="vtk_test" showHeader={false} />);
+    expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument();
+  });
+
+  it('renders footer by default', () => {
+    globalThis.fetch = vi.fn().mockReturnValue(new Promise(() => {}));
+    render(<AuditLogViewer token="vtk_test" />);
+    expect(screen.getByText('LogSeal')).toBeInTheDocument();
+  });
+
+  it('hides footer when showBranding is false', () => {
+    globalThis.fetch = vi.fn().mockReturnValue(new Promise(() => {}));
+    render(<AuditLogViewer token="vtk_test" showBranding={false} />);
+    expect(screen.queryByText('LogSeal')).not.toBeInTheDocument();
+  });
+
+  it('renders action badges in table', async () => {
+    globalThis.fetch = mockFetchSuccess();
+    render(<AuditLogViewer token="vtk_test" />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('grid')).toBeInTheDocument();
+    });
+
+    // The action should be rendered as a badge (span with badge class)
+    const badge = screen.getByText('user.created', { selector: '.logseal-action-badge' });
+    expect(badge).toBeInTheDocument();
+  });
+
+  it('allows custom Header component override', () => {
+    globalThis.fetch = vi.fn().mockReturnValue(new Promise(() => {}));
+
+    function CustomHeader() {
+      return <div data-testid="custom-header">My Header</div>;
+    }
+
+    render(
+      <AuditLogViewer
+        token="vtk_test"
+        components={{ Header: CustomHeader as any }}
+      />,
+    );
+
+    expect(screen.getByTestId('custom-header')).toBeInTheDocument();
+  });
 });

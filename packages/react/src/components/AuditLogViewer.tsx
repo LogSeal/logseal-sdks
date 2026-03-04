@@ -7,14 +7,23 @@ import { Pagination as DefaultPagination } from './Pagination.js';
 import { EmptyState as DefaultEmptyState } from './EmptyState.js';
 import { ErrorState as DefaultErrorState } from './ErrorState.js';
 import { LoadingState as DefaultLoadingState } from './LoadingState.js';
-import type { AuditLogViewerProps, ColumnDef } from '../types.js';
+import { Header as DefaultHeader } from './Header.js';
+import { Footer as DefaultFooter } from './Footer.js';
+import { ActionBadge as DefaultActionBadge } from './ActionBadge.js';
+import type { AuditLogViewerProps, ActionBadgeProps, ColumnDef } from '../types.js';
+import type { ComponentType } from 'react';
 
-function defaultColumns(): ColumnDef[] {
+function defaultColumns(
+  Badge: ComponentType<ActionBadgeProps>,
+  badgeClassName?: string,
+): ColumnDef[] {
   return [
     {
       key: 'action',
       header: 'Action',
-      render: (event: AuditEvent) => event.action,
+      render: (event: AuditEvent) => (
+        <Badge action={event.action} className={badgeClassName} />
+      ),
     },
     {
       key: 'actor',
@@ -42,6 +51,10 @@ export function AuditLogViewer({
   baseUrl,
   onTokenExpired,
   pageSize,
+  title = 'Audit Log',
+  organization,
+  showHeader = true,
+  showBranding = true,
   filters: externalFilters,
   columns: customColumns,
   classNames,
@@ -70,7 +83,21 @@ export function AuditLogViewer({
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const columns = useMemo(() => customColumns || defaultColumns(), [customColumns]);
+  // Resolve components (allow overrides)
+  const FilterBar = components?.FilterBar || DefaultFilterBar;
+  const EventTable = components?.EventTable || DefaultEventTable;
+  const PaginationComponent = components?.Pagination || DefaultPagination;
+  const EmptyStateComponent = components?.EmptyState || DefaultEmptyState;
+  const ErrorStateComponent = components?.ErrorState || DefaultErrorState;
+  const LoadingStateComponent = components?.LoadingState || DefaultLoadingState;
+  const HeaderComponent = components?.Header || DefaultHeader;
+  const FooterComponent = components?.Footer || DefaultFooter;
+  const ActionBadge = components?.ActionBadge || DefaultActionBadge;
+
+  const columns = useMemo(
+    () => customColumns || defaultColumns(ActionBadge, classNames?.actionBadge),
+    [customColumns, ActionBadge, classNames?.actionBadge],
+  );
 
   const handleToggle = useCallback(
     (id: string) => {
@@ -91,16 +118,16 @@ export function AuditLogViewer({
     setFilters({});
   }, [setFilters]);
 
-  // Resolve components (allow overrides)
-  const FilterBar = components?.FilterBar || DefaultFilterBar;
-  const EventTable = components?.EventTable || DefaultEventTable;
-  const PaginationComponent = components?.Pagination || DefaultPagination;
-  const EmptyStateComponent = components?.EmptyState || DefaultEmptyState;
-  const ErrorStateComponent = components?.ErrorState || DefaultErrorState;
-  const LoadingStateComponent = components?.LoadingState || DefaultLoadingState;
-
   return (
     <div className={`logseal-viewer ${classNames?.root || ''}`}>
+      {showHeader !== false && (
+        <HeaderComponent
+          title={title}
+          organization={organization}
+          className={classNames?.header}
+        />
+      )}
+
       <FilterBar
         actions={actions}
         filters={filters}
@@ -143,6 +170,10 @@ export function AuditLogViewer({
             className={classNames?.pagination}
           />
         </>
+      )}
+
+      {showBranding !== false && (
+        <FooterComponent className={classNames?.footer} />
       )}
     </div>
   );

@@ -31,11 +31,120 @@
   --logseal-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
   --logseal-transition-speed: 150ms;
 
+  /* Action badge color palette */
+  --logseal-badge-blue-bg: #dbeafe;
+  --logseal-badge-blue-text: #1e40af;
+  --logseal-badge-green-bg: #dcfce7;
+  --logseal-badge-green-text: #166534;
+  --logseal-badge-orange-bg: #ffedd5;
+  --logseal-badge-orange-text: #9a3412;
+  --logseal-badge-purple-bg: #f3e8ff;
+  --logseal-badge-purple-text: #6b21a8;
+  --logseal-badge-yellow-bg: #fef9c3;
+  --logseal-badge-yellow-text: #854d0e;
+  --logseal-badge-pink-bg: #fce7f3;
+  --logseal-badge-pink-text: #9d174d;
+  --logseal-badge-teal-bg: #ccfbf1;
+  --logseal-badge-teal-text: #115e59;
+  --logseal-badge-red-bg: #fee2e2;
+  --logseal-badge-red-text: #991b1b;
+
   font-family: var(--logseal-font-family);
   font-size: var(--logseal-font-size-sm);
   line-height: var(--logseal-line-height);
   color: var(--logseal-color-text);
   background: var(--logseal-color-bg);
+  border-radius: var(--logseal-border-radius-lg);
+  border: 1px solid var(--logseal-color-border);
+  box-shadow: var(--logseal-shadow-md);
+  overflow: hidden;
+}
+
+/* ─── Header ─── */
+
+:where(.logseal-header) {
+  padding: 1.25rem var(--logseal-spacing-lg) 1rem;
+  border-bottom: 1px solid var(--logseal-color-border);
+}
+
+:where(.logseal-header__title) {
+  margin: 0;
+  font-size: var(--logseal-font-size-lg);
+  font-weight: 600;
+  color: var(--logseal-color-text);
+  line-height: 1.3;
+}
+
+:where(.logseal-header__org) {
+  margin: 0.25rem 0 0;
+  font-size: var(--logseal-font-size-sm);
+  color: var(--logseal-color-text-muted);
+}
+
+/* ─── Footer ─── */
+
+:where(.logseal-footer) {
+  display: flex;
+  justify-content: center;
+  padding: var(--logseal-spacing) var(--logseal-spacing-lg);
+  border-top: 1px solid var(--logseal-color-border);
+}
+
+:where(.logseal-footer__text) {
+  font-size: var(--logseal-font-size-xs);
+  color: var(--logseal-color-text-muted);
+}
+
+/* ─── Action Badge ─── */
+
+:where(.logseal-action-badge) {
+  display: inline-block;
+  padding: 0.125rem 0.625rem;
+  border-radius: 9999px;
+  font-size: var(--logseal-font-size-xs);
+  font-weight: 500;
+  white-space: nowrap;
+  line-height: 1.5;
+}
+
+:where(.logseal-action-badge--blue) {
+  background: var(--logseal-badge-blue-bg);
+  color: var(--logseal-badge-blue-text);
+}
+
+:where(.logseal-action-badge--green) {
+  background: var(--logseal-badge-green-bg);
+  color: var(--logseal-badge-green-text);
+}
+
+:where(.logseal-action-badge--orange) {
+  background: var(--logseal-badge-orange-bg);
+  color: var(--logseal-badge-orange-text);
+}
+
+:where(.logseal-action-badge--purple) {
+  background: var(--logseal-badge-purple-bg);
+  color: var(--logseal-badge-purple-text);
+}
+
+:where(.logseal-action-badge--yellow) {
+  background: var(--logseal-badge-yellow-bg);
+  color: var(--logseal-badge-yellow-text);
+}
+
+:where(.logseal-action-badge--pink) {
+  background: var(--logseal-badge-pink-bg);
+  color: var(--logseal-badge-pink-text);
+}
+
+:where(.logseal-action-badge--teal) {
+  background: var(--logseal-badge-teal-bg);
+  color: var(--logseal-badge-teal-text);
+}
+
+:where(.logseal-action-badge--red) {
+  background: var(--logseal-badge-red-bg);
+  color: var(--logseal-badge-red-text);
 }
 
 /* ─── Filter Bar ─── */
@@ -344,5 +453,60 @@
   }
   100% {
     background-position: 200% 0;
+  }
+}
+
+/* ─── Responsive ─── */
+
+@media (max-width: 640px) {
+  :where(.logseal-filter-bar) {
+    flex-direction: column;
+  }
+
+  :where(.logseal-filter-bar__field) {
+    min-width: 0;
+  }
+
+  :where(.logseal-filter-bar__select),
+  :where(.logseal-filter-bar__input) {
+    min-height: 44px;
+    font-size: 16px; /* prevent iOS zoom */
+  }
+
+  :where(.logseal-header-row) {
+    display: none;
+  }
+
+  :where(.logseal-row) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--logseal-spacing-sm);
+    padding: var(--logseal-spacing);
+    min-height: 44px;
+    align-items: center;
+  }
+
+  :where(.logseal-cell) {
+    padding: 0;
+    max-width: none;
+    white-space: normal;
+  }
+
+  :where(.logseal-cell):first-child {
+    width: 100%;
+    font-weight: 500;
+  }
+
+  :where(.logseal-detail) {
+    grid-template-columns: 1fr;
+  }
+
+  :where(.logseal-pagination__button) {
+    min-height: 44px;
+    width: 100%;
+  }
+
+  :where(.logseal-pagination) {
+    padding: var(--logseal-spacing-lg);
   }
 }
