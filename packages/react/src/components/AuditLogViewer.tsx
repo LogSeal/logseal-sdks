@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
-import { formatRelativeTime, type AuditEvent } from '@logseal/viewer-core';
+import { formatRelativeTime, formatDateTime, type AuditEvent } from '@logseal/viewer-core';
 import { useAuditLog } from '../hooks/use-audit-log.js';
 import { FilterBar as DefaultFilterBar } from './FilterBar.js';
 import { EventTable as DefaultEventTable } from './EventTable.js';
@@ -41,7 +41,14 @@ function defaultColumns(
     {
       key: 'date',
       header: 'Date',
-      render: (event: AuditEvent) => formatRelativeTime(event.occurred_at),
+      render: (event: AuditEvent) => (
+        <time
+          dateTime={event.occurred_at}
+          title={formatDateTime(event.occurred_at)}
+        >
+          {formatRelativeTime(event.occurred_at)}
+        </time>
+      ),
       width: '120px',
     },
   ];
