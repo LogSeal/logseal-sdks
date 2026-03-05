@@ -105,6 +105,7 @@ body:has(.playground--dark) {
 /* ─── Custom Filter Bar (playground demo) ─── */
 
 .custom-filter-bar {
+  padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--logseal-color-border, #e5e7eb);
 }
 
@@ -112,7 +113,7 @@ body:has(.playground--dark) {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1rem 0;
+  padding: 0.375rem 0 0;
   flex-wrap: wrap;
 }
 
@@ -161,7 +162,7 @@ body:has(.playground--dark) {
 }
 
 .custom-filter-bar__section--actions {
-  padding-bottom: 0.75rem;
+  padding-bottom: 0;
 }
 
 .custom-filter-bar__clear {
