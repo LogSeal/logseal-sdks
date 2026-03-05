@@ -54,6 +54,9 @@ export interface FilterBarProps {
   actions: string[];
   filters: ViewerFilters;
   onFiltersChange: (filters: ViewerFilters) => void;
+  hasActiveFilters?: boolean;
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
   className?: string;
 }
 
@@ -68,10 +71,16 @@ export interface EventTableProps {
 export interface EventRowProps {
   event: AuditEvent;
   columns: ColumnDef[];
-  expanded: boolean;
+  selected: boolean;
   onToggle: () => void;
   className?: string;
   expandedClassName?: string;
+}
+
+export interface DetailPopoverProps {
+  event: AuditEvent | null;
+  onClose: () => void;
+  className?: string;
 }
 
 export interface EventDetailProps {
@@ -112,6 +121,7 @@ export interface Components {
   EventTable?: ComponentType<EventTableProps>;
   EventRow?: ComponentType<EventRowProps>;
   EventDetail?: ComponentType<EventDetailProps>;
+  DetailPopover?: ComponentType<DetailPopoverProps>;
   Pagination?: ComponentType<PaginationProps>;
   EmptyState?: ComponentType<EmptyStateProps>;
   ErrorState?: ComponentType<ErrorStateProps>;
@@ -135,4 +145,5 @@ export interface AuditLogViewerProps {
   onEventClick?: (event: AuditEvent) => void;
   emptyState?: ReactNode;
   locale?: string;
+  maxHeight?: string;
 }

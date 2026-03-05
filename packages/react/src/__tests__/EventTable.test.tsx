@@ -25,7 +25,7 @@ const columns: ColumnDef[] = [
 ];
 
 describe('EventTable', () => {
-  it('renders table headers', () => {
+  it('renders table with aria-label', () => {
     render(
       <EventTable
         events={[makeEvent('evt_1')]}
@@ -35,8 +35,37 @@ describe('EventTable', () => {
       />,
     );
 
-    expect(screen.getByText('Action')).toBeInTheDocument();
-    expect(screen.getByText('Actor')).toBeInTheDocument();
+    expect(screen.getByRole('table', { name: 'Audit log events' })).toBeInTheDocument();
+  });
+
+  it('renders header cells with scope="col"', () => {
+    const { container } = render(
+      <EventTable
+        events={[makeEvent('evt_1')]}
+        columns={columns}
+        expandedId={null}
+        onToggle={vi.fn()}
+      />,
+    );
+
+    const ths = container.querySelectorAll('th');
+    ths.forEach((th) => expect(th).toHaveAttribute('scope', 'col'));
+  });
+
+  it('always renders visible headers', () => {
+    const { container } = render(
+      <EventTable
+        events={[makeEvent('evt_1')]}
+        columns={columns}
+        expandedId={null}
+        onToggle={vi.fn()}
+      />,
+    );
+
+    const headerRow = container.querySelector('.logseal-header-row');
+    expect(headerRow).toBeInTheDocument();
+    const ths = headerRow!.querySelectorAll('th');
+    expect(ths.length).toBe(columns.length);
   });
 
   it('renders event rows', () => {
@@ -68,7 +97,7 @@ describe('EventTable', () => {
     expect(onToggle).toHaveBeenCalledWith('evt_1');
   });
 
-  it('shows event detail when row is expanded', () => {
+  it('does not render inline detail row (no role="button")', () => {
     render(
       <EventTable
         events={[makeEvent('evt_1')]}
@@ -78,11 +107,24 @@ describe('EventTable', () => {
       />,
     );
 
-    // EventDetail renders actor info
-    expect(screen.getByText('actor_1')).toBeInTheDocument();
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
-  it('supports keyboard navigation', () => {
+  it('marks selected row with aria-selected', () => {
+    const { container } = render(
+      <EventTable
+        events={[makeEvent('evt_1')]}
+        columns={columns}
+        expandedId="evt_1"
+        onToggle={vi.fn()}
+      />,
+    );
+
+    const row = container.querySelector('.logseal-row--expanded');
+    expect(row).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('supports keyboard navigation with Enter', () => {
     const onToggle = vi.fn();
     render(
       <EventTable
@@ -93,8 +135,21 @@ describe('EventTable', () => {
       />,
     );
 
-    const row = screen.getByRole('button');
+    const row = screen.getByRole('row', { name: 'user.created' });
     fireEvent.keyDown(row, { key: 'Enter' });
     expect(onToggle).toHaveBeenCalledWith('evt_1');
+  });
+
+  it('adds has-selection class when a row is expanded', () => {
+    const { container } = render(
+      <EventTable
+        events={[makeEvent('evt_1')]}
+        columns={columns}
+        expandedId="evt_1"
+        onToggle={vi.fn()}
+      />,
+    );
+
+    expect(container.querySelector('.logseal-table--has-selection')).toBeInTheDocument();
   });
 });

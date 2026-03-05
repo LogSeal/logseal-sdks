@@ -10,6 +10,7 @@ import { LoadingState as DefaultLoadingState } from './LoadingState.js';
 import { Header as DefaultHeader } from './Header.js';
 import { Footer as DefaultFooter } from './Footer.js';
 import { ActionBadge as DefaultActionBadge } from './ActionBadge.js';
+import { DetailPopover as DefaultDetailPopover } from './DetailPopover.js';
 import type { AuditLogViewerProps, ActionBadgeProps, ColumnDef } from '../types.js';
 import type { ComponentType } from 'react';
 
@@ -46,6 +47,22 @@ function defaultColumns(
   ];
 }
 
+function matchesSearch(event: AuditEvent, query: string): boolean {
+  const q = query.toLowerCase();
+  return (
+    event.action.toLowerCase().includes(q) ||
+    event.actor.id.toLowerCase().includes(q) ||
+    (event.actor.name || '').toLowerCase().includes(q) ||
+    (event.actor.email || '').toLowerCase().includes(q) ||
+    event.targets.some(
+      (t) =>
+        t.id.toLowerCase().includes(q) ||
+        (t.name || '').toLowerCase().includes(q) ||
+        t.type.toLowerCase().includes(q),
+    )
+  );
+}
+
 export function AuditLogViewer({
   token,
   baseUrl,
@@ -61,6 +78,7 @@ export function AuditLogViewer({
   components,
   onEventClick,
   emptyState: customEmptyState,
+  maxHeight,
 }: AuditLogViewerProps) {
   const {
     events,
@@ -82,6 +100,7 @@ export function AuditLogViewer({
   });
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Resolve components (allow overrides)
   const FilterBar = components?.FilterBar || DefaultFilterBar;
@@ -93,33 +112,51 @@ export function AuditLogViewer({
   const HeaderComponent = components?.Header || DefaultHeader;
   const FooterComponent = components?.Footer || DefaultFooter;
   const ActionBadge = components?.ActionBadge || DefaultActionBadge;
+  const DetailPopover = components?.DetailPopover || DefaultDetailPopover;
 
   const columns = useMemo(
     () => customColumns || defaultColumns(ActionBadge, classNames?.actionBadge),
     [customColumns, ActionBadge, classNames?.actionBadge],
   );
 
-  const handleToggle = useCallback(
-    (id: string) => {
-      if (onEventClick) {
-        const event = events.find((e) => e.id === id);
-        if (event) onEventClick(event);
-      }
-      setExpandedId((prev) => (prev === id ? null : id));
-    },
-    [events, onEventClick],
+  // Client-side search filtering
+  const filteredEvents = useMemo(
+    () => (searchQuery ? events.filter((e) => matchesSearch(e, searchQuery)) : events),
+    [events, searchQuery],
   );
 
+  const selectedEvent = useMemo(
+    () => (expandedId ? filteredEvents.find((e) => e.id === expandedId) || null : null),
+    [expandedId, filteredEvents],
+  );
+
+  const handleToggle = useCallback(
+    (id: string) => {
+      const event = filteredEvents.find((e) => e.id === id);
+      if (event && onEventClick) onEventClick(event);
+      setExpandedId((prev) => (prev === id ? null : id));
+    },
+    [filteredEvents, onEventClick],
+  );
+
+  const handleClosePopover = useCallback(() => {
+    setExpandedId(null);
+  }, []);
+
   const hasActiveFilters = Boolean(
-    filters.action || filters.actorId || filters.after || filters.before,
+    filters.action || filters.actorId || filters.after || filters.before || searchQuery,
   );
 
   const handleClearFilters = useCallback(() => {
     setFilters({});
+    setSearchQuery('');
   }, [setFilters]);
 
   return (
-    <div className={`logseal-viewer ${classNames?.root || ''}`}>
+    <div
+      className={`logseal-viewer ${maxHeight ? 'logseal-viewer--constrained' : ''} ${classNames?.root || ''}`}
+      style={maxHeight ? { maxHeight } : undefined}
+    >
       {showHeader !== false && (
         <HeaderComponent
           title={title}
@@ -132,6 +169,9 @@ export function AuditLogViewer({
         actions={actions}
         filters={filters}
         onFiltersChange={setFilters}
+        hasActiveFilters={hasActiveFilters}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
         className={classNames?.filterBar}
       />
 
@@ -145,7 +185,7 @@ export function AuditLogViewer({
         />
       )}
 
-      {!loading && !error && events.length === 0 &&
+      {!loading && !error && filteredEvents.length === 0 &&
         (customEmptyState || (
           <EmptyStateComponent
             hasFilters={hasActiveFilters}
@@ -154,14 +194,21 @@ export function AuditLogViewer({
           />
         ))}
 
-      {!loading && !error && events.length > 0 && (
+      {!loading && !error && filteredEvents.length > 0 && (
         <>
-          <EventTable
-            events={events}
-            columns={columns}
-            expandedId={expandedId}
-            onToggle={handleToggle}
-            classNames={classNames}
+          <div className="logseal-viewer__table-area">
+            <EventTable
+              events={filteredEvents}
+              columns={columns}
+              expandedId={expandedId}
+              onToggle={handleToggle}
+              classNames={classNames}
+            />
+          </div>
+          <DetailPopover
+            event={selectedEvent}
+            onClose={handleClosePopover}
+            className={classNames?.detail}
           />
           <PaginationComponent
             hasMore={hasMore}

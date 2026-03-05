@@ -9,6 +9,7 @@ export { EmptyState } from './components/EmptyState.js';
 export { ErrorState } from './components/ErrorState.js';
 export { LoadingState } from './components/LoadingState.js';
 export { ActionBadge } from './components/ActionBadge.js';
+export { DetailPopover } from './components/DetailPopover.js';
 export { Header } from './components/Header.js';
 export { Footer } from './components/Footer.js';
 
@@ -27,6 +28,7 @@ export type {
   EventTableProps,
   EventRowProps,
   EventDetailProps,
+  DetailPopoverProps,
   PaginationProps,
   EmptyStateProps,
   ErrorStateProps,
