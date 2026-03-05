@@ -48,8 +48,7 @@
   },
   "dependencies": {
     "@logseal/viewer-core": "*",
-    "react-day-picker": "^9.14.0",
-    "react-select": "^5.10.2"
+    "react-day-picker": "^9.14.0"
   },
   "peerDependencies": {
     "react": ">=18.0.0",

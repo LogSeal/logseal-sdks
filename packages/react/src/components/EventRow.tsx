@@ -11,21 +11,44 @@ export function EventRow({
 }: EventRowProps) {
   const rowRef = useRef<HTMLTableRowElement>(null);
 
+  const prevSelected = useRef(false);
+
   useEffect(() => {
-    if (selected && rowRef.current) {
-      requestAnimationFrame(() => {
-        const el = rowRef.current;
-        if (!el) return;
+    const wasSelected = prevSelected.current;
+    prevSelected.current = selected;
+
+    // Only scroll when transitioning from unselected → selected
+    if (!selected || wasSelected) return;
+    if (!rowRef.current) return;
+
+    requestAnimationFrame(() => {
+      const el = rowRef.current;
+      if (!el) return;
+
+      // Find the nearest scrollable ancestor (e.g. constrained table area)
+      const scrollParent = el.closest('.logseal-viewer__table-area') as HTMLElement | null;
+      if (scrollParent && scrollParent.scrollHeight > scrollParent.clientHeight) {
+        const elRect = el.getBoundingClientRect();
+        const parentRect = scrollParent.getBoundingClientRect();
+        // Only scroll if the row is outside the visible area of the scroll parent
+        if (elRect.bottom > parentRect.bottom || elRect.top < parentRect.top) {
+          const offsetTop = elRect.top - parentRect.top + scrollParent.scrollTop;
+          scrollParent.scrollTo({
+            top: offsetTop - 80,
+            behavior: 'smooth',
+          });
+        }
+      } else {
+        // Fallback: scroll the window
         const rect = el.getBoundingClientRect();
-        // Only scroll if row isn't already visible in the upper portion of the viewport
-        if (rect.top > window.innerHeight * 0.6 || rect.top < 0) {
+        if (rect.bottom > window.innerHeight || rect.top < 0) {
           window.scrollTo({
             top: window.scrollY + rect.top - 160,
             behavior: 'smooth',
           });
         }
-      });
-    }
+      }
+    });
   }, [selected]);
 
   return (

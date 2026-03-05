@@ -144,6 +144,5 @@ export interface AuditLogViewerProps {
   components?: Components;
   onEventClick?: (event: AuditEvent) => void;
   emptyState?: ReactNode;
-  locale?: string;
   maxHeight?: string;
 }

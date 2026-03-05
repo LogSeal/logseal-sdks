@@ -1,17 +1,9 @@
-import { useState, useMemo, useRef, useEffect, type ReactNode } from 'react';
-import { createPortal } from 'react-dom';
-import Select, { type SingleValue } from 'react-select';
+import { useState, useRef, useEffect } from 'react';
 import { DayPicker } from 'react-day-picker';
 import type { DateRange } from 'react-day-picker';
 import 'react-day-picker/style.css';
-import { getBadgeColor } from './ActionBadge.js';
+import { ActionSelect } from './ActionSelect.js';
 import type { FilterBarProps } from '../types.js';
-
-interface ActionOption {
-  value: string;
-  label: string;
-  badgeColor: string;
-}
 
 function DateRangeField({
   fromValue,
@@ -25,11 +17,9 @@ function DateRangeField({
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
-  const [popoverPos, setPopoverPos] = useState<{ top: number; left: number } | null>(null);
 
   // Local draft range so we don't fire API calls on every click
   const [draft, setDraft] = useState<DateRange | undefined>(undefined);
-  // Time state: "HH:MM" strings
   const [fromTime, setFromTime] = useState('00:00');
   const [toTime, setToTime] = useState('23:59');
 
@@ -60,7 +50,7 @@ function DateRangeField({
       }
       clickCount.current = 0;
     }
-  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open, fromValue, toValue]);
 
   // Commit draft to parent when popover closes
   const commitAndClose = () => {
@@ -103,22 +93,6 @@ function DateRangeField({
     return () => document.removeEventListener('mousedown', handleMouseDown);
   }, [open, draft, fromTime, toTime]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    if (open && triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect();
-      const popoverWidth = 330;
-      let left = rect.right + window.scrollX - popoverWidth;
-      if (left < 8) left = 8;
-      if (left + popoverWidth > window.innerWidth - 8) {
-        left = Math.max(8, window.innerWidth - popoverWidth - 8);
-      }
-      setPopoverPos({
-        top: rect.bottom + window.scrollY + 4,
-        left,
-      });
-    }
-  }, [open]);
-
   const formatDate = (date: Date) =>
     date.toLocaleDateString(undefined, {
       year: 'numeric',
@@ -144,7 +118,6 @@ function DateRangeField({
 
   const hasValue = fromValue || toValue;
 
-  // Show draft while popover is open, committed values otherwise
   const displayedRange = open ? draft : (
     fromValue || toValue
       ? { from: parseDateTime(fromValue), to: parseDateTime(toValue) }
@@ -182,43 +155,40 @@ function DateRangeField({
           </button>
         )}
       </button>
-      {open && typeof document !== 'undefined' &&
-        createPortal(
-          <div
-            ref={popoverRef}
-            className="logseal-date-popover"
-            role="dialog"
-            aria-label="Select date range"
-            style={popoverPos ? { top: popoverPos.top, left: popoverPos.left } : undefined}
-          >
-            <DayPicker
-              mode="range"
-              selected={displayedRange}
-              onSelect={handleSelect}
-            />
-            <div className="logseal-date-popover__time">
-              <div className="logseal-date-popover__time-field">
-                <label className="logseal-date-popover__time-label">From</label>
-                <input
-                  type="time"
-                  className="logseal-date-popover__time-input"
-                  value={fromTime}
-                  onChange={(e) => setFromTime(e.target.value)}
-                />
-              </div>
-              <div className="logseal-date-popover__time-field">
-                <label className="logseal-date-popover__time-label">To</label>
-                <input
-                  type="time"
-                  className="logseal-date-popover__time-input"
-                  value={toTime}
-                  onChange={(e) => setToTime(e.target.value)}
-                />
-              </div>
+      {open && (
+        <div
+          ref={popoverRef}
+          className="logseal-date-popover"
+          role="dialog"
+          aria-label="Select date range"
+        >
+          <DayPicker
+            mode="range"
+            selected={displayedRange}
+            onSelect={handleSelect}
+          />
+          <div className="logseal-date-popover__time">
+            <div className="logseal-date-popover__time-field">
+              <label className="logseal-date-popover__time-label">From</label>
+              <input
+                type="time"
+                className="logseal-date-popover__time-input"
+                value={fromTime}
+                onChange={(e) => setFromTime(e.target.value)}
+              />
             </div>
-          </div>,
-          document.body,
-        )}
+            <div className="logseal-date-popover__time-field">
+              <label className="logseal-date-popover__time-label">To</label>
+              <input
+                type="time"
+                className="logseal-date-popover__time-input"
+                value={toTime}
+                onChange={(e) => setToTime(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -233,22 +203,6 @@ export function FilterBar({
   className,
 }: FilterBarProps) {
   const [open, setOpen] = useState(false);
-
-  const actionOptions = useMemo<ActionOption[]>(
-    () => actions.map((a) => ({ value: a, label: a, badgeColor: getBadgeColor(a) })),
-    [actions],
-  );
-
-  const formatOptionLabel = (option: ActionOption) => (
-    <span className={`logseal-action-badge logseal-action-badge--${option.badgeColor}`}>
-      {option.label}
-    </span>
-  );
-
-  const selectedAction = useMemo(
-    () => actionOptions.find((o) => o.value === filters.action) || null,
-    [actionOptions, filters.action],
-  );
 
   return (
     <div
@@ -296,91 +250,13 @@ export function FilterBar({
           <label className="logseal-filter-bar__label" id="logseal-filter-action-label">
             Action
           </label>
-          <Select<ActionOption>
-            aria-labelledby="logseal-filter-action-label"
-            options={actionOptions}
-            value={selectedAction}
-            onChange={(option) =>
-              onFiltersChange({ ...filters, action: option?.value || undefined })
+          <ActionSelect
+            options={actions}
+            value={filters.action}
+            onChange={(action) =>
+              onFiltersChange({ ...filters, action })
             }
-            formatOptionLabel={formatOptionLabel}
-            isClearable
-            placeholder="All actions"
-            menuPosition="absolute"
-            styles={{
-              control: (base, state) => ({
-                ...base,
-                minHeight: '34px',
-                height: '34px',
-                borderColor: state.isFocused
-                  ? 'var(--logseal-color-primary)'
-                  : 'var(--logseal-color-border)',
-                backgroundColor: 'var(--logseal-color-bg)',
-                fontFamily: 'var(--logseal-font-family)',
-                fontSize: 'var(--logseal-font-size-sm)',
-                borderRadius: 'var(--logseal-border-radius)',
-                boxShadow: state.isFocused
-                  ? '0 0 0 1px var(--logseal-color-primary)'
-                  : 'none',
-                '&:hover': {
-                  borderColor: 'var(--logseal-color-primary)',
-                },
-              }),
-              valueContainer: (base) => ({
-                ...base,
-                padding: '0 8px',
-                height: '32px',
-              }),
-              input: (base) => ({
-                ...base,
-                margin: 0,
-                padding: 0,
-              }),
-              indicatorsContainer: (base) => ({
-                ...base,
-                height: '32px',
-              }),
-              indicatorSeparator: () => ({
-                display: 'none',
-              }),
-              dropdownIndicator: (base) => ({
-                ...base,
-                padding: '4px',
-              }),
-              clearIndicator: (base) => ({
-                ...base,
-                padding: '4px',
-              }),
-              menu: (base) => ({
-                ...base,
-                zIndex: 30,
-                width: 'max-content',
-                minWidth: '100%',
-                borderRadius: 'var(--logseal-border-radius)',
-                boxShadow: 'var(--logseal-shadow-md)',
-              }),
-              option: (base, state) => ({
-                ...base,
-                fontSize: 'var(--logseal-font-size-sm)',
-                fontFamily: 'var(--logseal-font-family)',
-                backgroundColor: state.isFocused
-                  ? 'var(--logseal-color-primary-light)'
-                  : 'var(--logseal-color-bg)',
-                color: 'var(--logseal-color-text)',
-                cursor: 'pointer',
-                '&:active': {
-                  backgroundColor: 'var(--logseal-color-primary-light)',
-                },
-              }),
-              singleValue: (base) => ({
-                ...base,
-                color: 'var(--logseal-color-text)',
-              }),
-              placeholder: (base) => ({
-                ...base,
-                color: 'var(--logseal-color-text-muted)',
-              }),
-            }}
+            aria-labelledby="logseal-filter-action-label"
           />
         </div>
 

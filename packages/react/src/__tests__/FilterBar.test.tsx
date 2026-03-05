@@ -10,7 +10,7 @@ describe('FilterBar', () => {
     onFiltersChange: vi.fn(),
   };
 
-  it('renders react-select action dropdown', () => {
+  it('renders action select dropdown', () => {
     render(<FilterBar {...defaultProps} />);
     expect(screen.getByText('All actions')).toBeInTheDocument();
   });
@@ -30,9 +30,9 @@ describe('FilterBar', () => {
     const user = userEvent.setup();
     render(<FilterBar {...defaultProps} onFiltersChange={onFiltersChange} />);
 
-    // Click on the react-select control to open menu
-    const selectControl = screen.getByText('All actions');
-    await user.click(selectControl);
+    // Click on the custom select trigger to open menu
+    const selectTrigger = screen.getByText('All actions');
+    await user.click(selectTrigger);
 
     // Click on an option
     const option = await screen.findByText('user.created');
