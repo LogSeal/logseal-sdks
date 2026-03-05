@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { AuditLogViewer, ActionBadge, FilterBar as DefaultFilterBar } from '@logseal/react';
+import { AuditLogViewer, ActionBadge } from '@logseal/react';
 import type { ColumnDef, FilterBarProps, Components } from '@logseal/react';
 import { formatRelativeTime, formatDateTime } from '@logseal/viewer-core';
 import '@logseal/react/styles.css';
@@ -185,7 +185,7 @@ function CustomFilterBar(props: FilterBarProps) {
   };
 
   return (
-    <div className="custom-filter-bar">
+    <div className="custom-filter-bar" role="search">
       <div className="custom-filter-bar__section">
         <span className="custom-filter-bar__label">Actor Type</span>
         <div className="custom-filter-bar__toggles">
@@ -216,8 +216,21 @@ function CustomFilterBar(props: FilterBarProps) {
           ))}
         </div>
       </div>
-      {/* Still render the default filter bar below for search + date */}
-      <DefaultFilterBar {...props} />
+      {(actorType || category) && (
+        <div className="custom-filter-bar__section custom-filter-bar__section--actions">
+          <button
+            type="button"
+            className="custom-filter-bar__clear"
+            onClick={() => {
+              setActorType('');
+              setCategory('');
+              props.onFiltersChange({});
+            }}
+          >
+            Clear all filters
+          </button>
+        </div>
+      )}
     </div>
   );
 }
