@@ -101,3 +101,66 @@ body:has(.playground--dark) {
 .playground--dark .playground__description {
   color: #9ca3af;
 }
+
+/* ─── Custom Filter Bar (playground demo) ─── */
+
+.custom-filter-bar {
+  border-bottom: 1px solid var(--logseal-color-border, #e5e7eb);
+}
+
+.custom-filter-bar__section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem 0;
+  flex-wrap: wrap;
+}
+
+.custom-filter-bar__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--logseal-color-text-secondary, #4b5563);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  flex-shrink: 0;
+}
+
+.custom-filter-bar__toggles {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.custom-filter-bar__toggle {
+  padding: 0.25rem 0.625rem;
+  border: 1px solid var(--logseal-color-border, #e5e7eb);
+  border-radius: 9999px;
+  background: var(--logseal-color-bg, #fff);
+  color: var(--logseal-color-text-secondary, #4b5563);
+  font-size: 0.75rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 150ms;
+}
+
+.custom-filter-bar__toggle:hover {
+  border-color: var(--logseal-color-primary, #2563eb);
+  color: var(--logseal-color-primary, #2563eb);
+}
+
+.custom-filter-bar__toggle--active {
+  background: var(--logseal-color-primary, #2563eb);
+  border-color: var(--logseal-color-primary, #2563eb);
+  color: #fff;
+}
+
+.custom-filter-bar__toggle--active:hover {
+  background: var(--logseal-color-primary-hover, #1d4ed8);
+  border-color: var(--logseal-color-primary-hover, #1d4ed8);
+  color: #fff;
+}
+
+/* Remove the default filter bar's top border when nested inside custom */
+.custom-filter-bar .logseal-filter-bar {
+  border-bottom: none;
+}

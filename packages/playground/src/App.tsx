@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
-import { AuditLogViewer, ActionBadge } from '@logseal/react';
-import type { ColumnDef } from '@logseal/react';
+import { AuditLogViewer, ActionBadge, FilterBar as DefaultFilterBar } from '@logseal/react';
+import type { ColumnDef, FilterBarProps, Components } from '@logseal/react';
 import { formatRelativeTime, formatDateTime } from '@logseal/viewer-core';
 import '@logseal/react/styles.css';
 import { MOCK_EVENTS, MOCK_ACTIONS } from './mock-data';
@@ -59,7 +59,6 @@ function delay(ms: number) {
 
 installMockFetch();
 
-// Mock fetch that returns empty data
 function installEmptyMockFetch() {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -82,7 +81,6 @@ function installEmptyMockFetch() {
   }) as typeof fetch;
 }
 
-// Mock fetch that returns errors
 function installErrorMockFetch() {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -141,9 +139,92 @@ const CUSTOM_COLUMNS: ColumnDef[] = [
   },
 ];
 
+// ─── Custom Filter Bar ───
+
+const ACTOR_TYPES = [
+  { value: '', label: 'All' },
+  { value: 'user', label: 'Users' },
+  { value: 'api_key', label: 'API Keys' },
+  { value: 'system', label: 'System' },
+  { value: 'service_account', label: 'Service' },
+];
+
+const ACTION_CATEGORIES = [
+  { value: '', label: 'All' },
+  { value: 'user.', label: 'User' },
+  { value: 'document.', label: 'Document' },
+  { value: 'api.', label: 'API' },
+  { value: 'billing.', label: 'Billing' },
+  { value: 'team.', label: 'Team' },
+  { value: 'settings.', label: 'Settings' },
+  { value: 'export.', label: 'Export' },
+];
+
+function CustomFilterBar(props: FilterBarProps) {
+  const [actorType, setActorType] = useState('');
+  const [category, setCategory] = useState('');
+
+  const handleActorType = (type: string) => {
+    setActorType(type);
+    // Use actorId filter to filter by actor type prefix
+    props.onFiltersChange({
+      ...props.filters,
+      actorId: type || undefined,
+    });
+  };
+
+  const handleCategory = (cat: string) => {
+    setCategory(cat);
+    // Find the first action matching the category, or clear
+    if (cat) {
+      const match = props.actions.find((a) => a.startsWith(cat));
+      props.onFiltersChange({ ...props.filters, action: match || undefined });
+    } else {
+      props.onFiltersChange({ ...props.filters, action: undefined });
+    }
+  };
+
+  return (
+    <div className="custom-filter-bar">
+      <div className="custom-filter-bar__section">
+        <span className="custom-filter-bar__label">Actor Type</span>
+        <div className="custom-filter-bar__toggles">
+          {ACTOR_TYPES.map((t) => (
+            <button
+              key={t.value}
+              type="button"
+              className={`custom-filter-bar__toggle ${actorType === t.value ? 'custom-filter-bar__toggle--active' : ''}`}
+              onClick={() => handleActorType(t.value)}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="custom-filter-bar__section">
+        <span className="custom-filter-bar__label">Category</span>
+        <div className="custom-filter-bar__toggles">
+          {ACTION_CATEGORIES.map((c) => (
+            <button
+              key={c.value}
+              type="button"
+              className={`custom-filter-bar__toggle ${category === c.value ? 'custom-filter-bar__toggle--active' : ''}`}
+              onClick={() => handleCategory(c.value)}
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      {/* Still render the default filter bar below for search + date */}
+      <DefaultFilterBar {...props} />
+    </div>
+  );
+}
+
 // ─── Scenarios ───
 
-type Scenario = 'default' | 'dark' | 'compact' | 'custom-columns' | 'no-header' | 'custom-empty' | 'empty' | 'error';
+type Scenario = 'default' | 'dark' | 'compact' | 'custom-columns' | 'custom-filters' | 'custom-empty' | 'empty' | 'error';
 
 interface ScenarioDef {
   id: Scenario;
@@ -173,9 +254,9 @@ const SCENARIOS: ScenarioDef[] = [
     description: 'Override columns to show "Who" with email, IP address, and custom headers.',
   },
   {
-    id: 'no-header',
-    label: 'Headless',
-    description: 'Hide the header and branding for embedding into existing UIs.',
+    id: 'custom-filters',
+    label: 'Custom Filters',
+    description: 'Replace the FilterBar via components={{ FilterBar: CustomFilterBar }}. Adds actor type toggles and action category buttons on top of the default filters.',
   },
   {
     id: 'custom-empty',
@@ -204,6 +285,7 @@ function getViewerProps(scenario: Scenario) {
     showHeader: true,
     showBranding: true,
     columns: undefined as ColumnDef[] | undefined,
+    components: undefined as Components | undefined,
     emptyState: undefined as ReactNode,
   };
 
@@ -214,8 +296,8 @@ function getViewerProps(scenario: Scenario) {
       return { ...base, maxHeight: '400px' };
     case 'custom-columns':
       return { ...base, columns: CUSTOM_COLUMNS };
-    case 'no-header':
-      return { ...base, showHeader: false, showBranding: false };
+    case 'custom-filters':
+      return { ...base, components: { FilterBar: CustomFilterBar } };
     case 'custom-empty':
       return {
         ...base,
@@ -281,6 +363,7 @@ export function App() {
         showHeader={props.showHeader}
         showBranding={props.showBranding}
         columns={props.columns}
+        components={props.components}
         emptyState={props.emptyState}
         onEventClick={(event: AuditEvent) => console.log('Event clicked:', event.id)}
       />
