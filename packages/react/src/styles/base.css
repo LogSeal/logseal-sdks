@@ -71,11 +71,12 @@
 
 .logseal-viewer__table-area {
   position: relative;
+  overflow-x: auto;
 }
 
 .logseal-viewer--constrained .logseal-viewer__table-area {
   flex: 1 1 0%;
-  overflow-y: auto;
+  overflow: auto;
   min-height: 0;
 }
 
@@ -542,7 +543,7 @@
 /* ─── Table ─── */
 
 .logseal-table-wrapper {
-  overflow-x: auto;
+  /* overflow-x moved to .logseal-viewer__table-area so sticky headers work */
 }
 
 .logseal-table {
@@ -563,7 +564,8 @@
 }
 
 .logseal-header-row {
-  border-bottom: 2px solid var(--logseal-color-border);
+  /* No border here — using ::after on <th> so the line stays
+     visible when the sticky header is pinned during scroll */
 }
 
 .logseal-header-cell {
@@ -575,6 +577,21 @@
   text-transform: uppercase;
   letter-spacing: 0.025em;
   white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--logseal-color-bg);
+}
+
+/* Fake bottom border via ::after — real border-bottom on a sticky <th>
+   scrolls away with the <tr>, but an absolutely-positioned pseudo stays */
+.logseal-header-cell::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-bottom: 2px solid var(--logseal-color-border);
 }
 
 .logseal-row {
