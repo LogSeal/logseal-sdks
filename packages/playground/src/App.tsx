@@ -1,5 +1,7 @@
-import { useState } from 'react';
-import { AuditLogViewer } from '@logseal/react';
+import { useState, type ReactNode } from 'react';
+import { AuditLogViewer, ActionBadge } from '@logseal/react';
+import type { ColumnDef } from '@logseal/react';
+import { formatRelativeTime, formatDateTime } from '@logseal/viewer-core';
 import '@logseal/react/styles.css';
 import { MOCK_EVENTS, MOCK_ACTIONS } from './mock-data';
 import type { AuditEvent } from '@logseal/viewer-core';
@@ -57,16 +59,6 @@ function delay(ms: number) {
 
 installMockFetch();
 
-type Scenario = 'default' | 'dark' | 'compact' | 'empty' | 'error';
-
-const SCENARIOS: { id: Scenario; label: string }[] = [
-  { id: 'default', label: 'Default' },
-  { id: 'dark', label: 'Dark Mode' },
-  { id: 'compact', label: 'Compact' },
-  { id: 'empty', label: 'Empty State' },
-  { id: 'error', label: 'Error State' },
-];
-
 // Mock fetch that returns empty data
 function installEmptyMockFetch() {
   const originalFetch = globalThis.fetch;
@@ -106,13 +98,147 @@ function installErrorMockFetch() {
   }) as typeof fetch;
 }
 
+// ─── Custom Columns ───
+
+const CUSTOM_COLUMNS: ColumnDef[] = [
+  {
+    key: 'action',
+    header: 'Event',
+    render: (event: AuditEvent) => <ActionBadge action={event.action} />,
+  },
+  {
+    key: 'actor',
+    header: 'Who',
+    render: (event: AuditEvent) => (
+      <span style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <strong>{event.actor.name || event.actor.id}</strong>
+        {event.actor.email && (
+          <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+            {event.actor.email}
+          </span>
+        )}
+      </span>
+    ),
+  },
+  {
+    key: 'ip',
+    header: 'IP Address',
+    render: (event: AuditEvent) => (
+      <code style={{ fontSize: '0.75rem', fontFamily: 'var(--logseal-font-family-mono)' }}>
+        {event.context.ip_address || '—'}
+      </code>
+    ),
+  },
+  {
+    key: 'date',
+    header: 'When',
+    render: (event: AuditEvent) => (
+      <time dateTime={event.occurred_at} title={formatDateTime(event.occurred_at)}>
+        {formatRelativeTime(event.occurred_at)}
+      </time>
+    ),
+    width: '100px',
+  },
+];
+
+// ─── Scenarios ───
+
+type Scenario = 'default' | 'dark' | 'compact' | 'custom-columns' | 'no-header' | 'custom-empty' | 'empty' | 'error';
+
+interface ScenarioDef {
+  id: Scenario;
+  label: string;
+  description: string;
+}
+
+const SCENARIOS: ScenarioDef[] = [
+  {
+    id: 'default',
+    label: 'Default',
+    description: 'Out-of-the-box configuration with default columns, header, and branding.',
+  },
+  {
+    id: 'dark',
+    label: 'Dark Mode',
+    description: 'Apply dark theme via classNames={{ root: "logseal-viewer--dark" }}.',
+  },
+  {
+    id: 'compact',
+    label: 'Compact',
+    description: 'Constrained height (maxHeight="400px") with sticky headers and scrollable body.',
+  },
+  {
+    id: 'custom-columns',
+    label: 'Custom Columns',
+    description: 'Override columns to show "Who" with email, IP address, and custom headers.',
+  },
+  {
+    id: 'no-header',
+    label: 'Headless',
+    description: 'Hide the header and branding for embedding into existing UIs.',
+  },
+  {
+    id: 'custom-empty',
+    label: 'Custom Empty',
+    description: 'Replace the empty state with your own JSX via the emptyState prop.',
+  },
+  {
+    id: 'empty',
+    label: 'Empty',
+    description: 'Default empty state when no events are returned.',
+  },
+  {
+    id: 'error',
+    label: 'Error',
+    description: 'Error state with retry button when the API returns an error.',
+  },
+];
+
+function getViewerProps(scenario: Scenario) {
+  const base = {
+    token: 'vtk_mock_playground',
+    title: 'Audit Log' as string,
+    organization: 'Acme Corp' as string | undefined,
+    maxHeight: '80vh',
+    classNames: {} as Record<string, string | undefined>,
+    showHeader: true,
+    showBranding: true,
+    columns: undefined as ColumnDef[] | undefined,
+    emptyState: undefined as ReactNode,
+  };
+
+  switch (scenario) {
+    case 'dark':
+      return { ...base, classNames: { root: 'logseal-viewer--dark' } };
+    case 'compact':
+      return { ...base, maxHeight: '400px' };
+    case 'custom-columns':
+      return { ...base, columns: CUSTOM_COLUMNS };
+    case 'no-header':
+      return { ...base, showHeader: false, showBranding: false };
+    case 'custom-empty':
+      return {
+        ...base,
+        emptyState: (
+          <div style={{ padding: '3rem', textAlign: 'center' as const }}>
+            <p style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Nothing here yet</p>
+            <p style={{ color: '#6b7280' }}>
+              Events will appear here once your integration starts sending data.
+            </p>
+          </div>
+        ),
+      };
+    default:
+      return base;
+  }
+}
+
 export function App() {
   const [scenario, setScenario] = useState<Scenario>('default');
   const [key, setKey] = useState(0);
 
   const switchScenario = (s: Scenario) => {
-    // Re-install the appropriate mock fetch
-    if (s === 'empty') {
+    if (s === 'empty' || s === 'custom-empty') {
       installEmptyMockFetch();
     } else if (s === 'error') {
       installErrorMockFetch();
@@ -120,8 +246,11 @@ export function App() {
       installMockFetch();
     }
     setScenario(s);
-    setKey((k) => k + 1); // force remount
+    setKey((k) => k + 1);
   };
+
+  const scenarioDef = SCENARIOS.find((s) => s.id === scenario)!;
+  const props = getViewerProps(scenario);
 
   return (
     <div className={`playground ${scenario === 'dark' ? 'playground--dark' : ''}`}>
@@ -140,16 +269,19 @@ export function App() {
             </button>
           ))}
         </nav>
+        <p className="playground__description">{scenarioDef.description}</p>
       </div>
       <AuditLogViewer
         key={key}
-        token="vtk_mock_playground"
-        title="Audit Log"
-        organization="Acme Corp"
-        maxHeight={scenario === 'compact' ? '400px' : '80vh'}
-        classNames={{
-          root: scenario === 'dark' ? 'logseal-viewer--dark' : undefined,
-        }}
+        token={props.token}
+        title={props.title}
+        organization={props.organization}
+        maxHeight={props.maxHeight}
+        classNames={props.classNames}
+        showHeader={props.showHeader}
+        showBranding={props.showBranding}
+        columns={props.columns}
+        emptyState={props.emptyState}
         onEventClick={(event: AuditEvent) => console.log('Event clicked:', event.id)}
       />
     </div>

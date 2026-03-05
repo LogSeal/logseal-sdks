@@ -90,3 +90,14 @@ body:has(.playground--dark) {
   border-color: #3b82f6;
   color: #fff;
 }
+
+.playground__description {
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.playground--dark .playground__description {
+  color: #9ca3af;
+}
