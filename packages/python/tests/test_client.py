@@ -20,7 +20,7 @@ from logseal.types import (
 
 @pytest.fixture
 def client() -> LogSeal:
-    return LogSeal(api_key="sk_test_abc123", base_url="https://api.logseal.dev")
+    return LogSeal(api_key="sk_test_abc123", base_url="https://api.logseal.io")
 
 
 def _event(**overrides: object) -> EmitEventInput:
@@ -76,7 +76,7 @@ class TestEmit:
 
     async def test_emit_sync(self, client: LogSeal, httpx_mock: HTTPXMock) -> None:
         httpx_mock.add_response(
-            url="https://api.logseal.dev/v1/events",
+            url="https://api.logseal.io/v1/events",
             method="POST",
             json={
                 "id": "evt_1",
@@ -104,7 +104,7 @@ class TestFlush:
 
     async def test_flush_sends_batch(self, client: LogSeal, httpx_mock: HTTPXMock) -> None:
         httpx_mock.add_response(
-            url="https://api.logseal.dev/v1/events/batch",
+            url="https://api.logseal.io/v1/events/batch",
             method="POST",
             json={"accepted": 2, "rejected": 0, "object": "batch"},
         )
@@ -117,7 +117,7 @@ class TestFlush:
     async def test_flush_requeues_on_failure(self, client: LogSeal, httpx_mock: HTTPXMock) -> None:
         client._max_retries = 0
         httpx_mock.add_response(
-            url="https://api.logseal.dev/v1/events/batch",
+            url="https://api.logseal.io/v1/events/batch",
             method="POST",
             status_code=500,
             json={"error": {"type": "internal_error", "code": "server_error", "message": "fail"}},
@@ -188,7 +188,7 @@ class TestEventsAPI:
 class TestErrors:
     async def test_api_error_raised(self, client: LogSeal, httpx_mock: HTTPXMock) -> None:
         httpx_mock.add_response(
-            url="https://api.logseal.dev/v1/events",
+            url="https://api.logseal.io/v1/events",
             method="POST",
             status_code=401,
             json={

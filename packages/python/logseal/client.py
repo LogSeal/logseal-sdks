@@ -82,7 +82,7 @@ class LogSeal:
         self,
         api_key: str,
         *,
-        base_url: str = "https://api.logseal.dev",
+        base_url: str = "https://api.logseal.io",
         batch_size: int = 100,
         flush_interval: float = 5.0,
         max_retries: int = 3,

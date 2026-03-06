@@ -44,7 +44,7 @@ The `async with` block automatically starts the background flush loop and calls 
 ```python
 client = LogSeal(
     api_key="sk_live_...",       # Required
-    base_url="https://api.logseal.dev",  # Optional override
+    base_url="https://api.logseal.io",  # Optional override
     batch_size=100,              # Events to buffer before auto-flushing
     flush_interval=5.0,          # Seconds between automatic flushes
     max_retries=3,               # Retry attempts on 429 / 5xx responses
