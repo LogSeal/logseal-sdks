@@ -129,7 +129,7 @@ describe('LogSeal Client', () => {
       expect(result.id).toBe('evt_123');
       expect(fetchMock).toHaveBeenCalledTimes(1);
       const [url, options] = fetchMock.mock.calls[0];
-      expect(url).toBe('https://api.logseal.dev/v1/events');
+      expect(url).toBe('https://api.logseal.io/v1/events');
       expect(options.method).toBe('POST');
 
       await client.shutdown();
@@ -157,7 +157,7 @@ describe('LogSeal Client', () => {
       expect(result).toEqual({ sent: 1 });
       expect(fetchMock).toHaveBeenCalledTimes(1);
       const [url] = fetchMock.mock.calls[0];
-      expect(url).toBe('https://api.logseal.dev/v1/events/batch');
+      expect(url).toBe('https://api.logseal.io/v1/events/batch');
 
       await client.shutdown();
     });
@@ -368,7 +368,7 @@ describe('LogSeal Client', () => {
       await client.events.get('evt_123');
 
       const [url, options] = fetchMock.mock.calls[0];
-      expect(url).toBe('https://api.logseal.dev/v1/events/evt_123');
+      expect(url).toBe('https://api.logseal.io/v1/events/evt_123');
       expect(options.method).toBe('GET');
 
       await client.shutdown();
@@ -389,7 +389,7 @@ describe('LogSeal Client', () => {
       await client.organizations.create({ externalId: 'my-org', name: 'My Org' });
 
       const [url, options] = fetchMock.mock.calls[0];
-      expect(url).toBe('https://api.logseal.dev/v1/organizations');
+      expect(url).toBe('https://api.logseal.io/v1/organizations');
       expect(options.method).toBe('POST');
       const body = JSON.parse(options.body);
       expect(body.external_id).toBe('my-org');
@@ -408,7 +408,7 @@ describe('LogSeal Client', () => {
       await client.organizations.list();
 
       const [url, options] = fetchMock.mock.calls[0];
-      expect(url).toBe('https://api.logseal.dev/v1/organizations');
+      expect(url).toBe('https://api.logseal.io/v1/organizations');
       expect(options.method).toBe('GET');
 
       await client.shutdown();
@@ -432,7 +432,7 @@ describe('LogSeal Client', () => {
       });
 
       const [url, options] = fetchMock.mock.calls[0];
-      expect(url).toBe('https://api.logseal.dev/v1/schemas');
+      expect(url).toBe('https://api.logseal.io/v1/schemas');
       expect(options.method).toBe('POST');
       const body = JSON.parse(options.body);
       expect(body.action).toBe('user.created');
@@ -458,7 +458,7 @@ describe('LogSeal Client', () => {
       });
 
       const [url, options] = fetchMock.mock.calls[0];
-      expect(url).toBe('https://api.logseal.dev/v1/webhooks');
+      expect(url).toBe('https://api.logseal.io/v1/webhooks');
       expect(options.method).toBe('POST');
       const body = JSON.parse(options.body);
       expect(body.url).toBe('https://example.com/hook');
@@ -476,7 +476,7 @@ describe('LogSeal Client', () => {
       await client.webhooks.delete('whk_123');
 
       const [url, options] = fetchMock.mock.calls[0];
-      expect(url).toBe('https://api.logseal.dev/v1/webhooks/whk_123');
+      expect(url).toBe('https://api.logseal.io/v1/webhooks/whk_123');
       expect(options.method).toBe('DELETE');
 
       await client.shutdown();
@@ -500,7 +500,7 @@ describe('LogSeal Client', () => {
       });
 
       const [url, options] = fetchMock.mock.calls[0];
-      expect(url).toBe('https://api.logseal.dev/v1/viewer-tokens');
+      expect(url).toBe('https://api.logseal.io/v1/viewer-tokens');
       expect(options.method).toBe('POST');
       const body = JSON.parse(options.body);
       expect(body.organization_id).toBe('org_1');
@@ -527,7 +527,7 @@ describe('LogSeal Client', () => {
       });
 
       const [url, options] = fetchMock.mock.calls[0];
-      expect(url).toBe('https://api.logseal.dev/v1/exports');
+      expect(url).toBe('https://api.logseal.io/v1/exports');
       expect(options.method).toBe('POST');
       const body = JSON.parse(options.body);
       expect(body.organization_id).toBe('org_1');

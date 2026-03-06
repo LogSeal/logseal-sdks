@@ -17,7 +17,7 @@ import { ViewerClient } from '@logseal/viewer-core';
 
 const client = new ViewerClient({
   token: 'vtk_...', // viewer token from your backend
-  baseUrl: 'https://api.logseal.dev', // optional
+  baseUrl: 'https://api.logseal.io', // optional
   onTokenExpired: async () => {
     // fetch a new token from your backend
     const res = await fetch('/api/viewer-token');
