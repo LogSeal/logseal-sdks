@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = "logseal"
-  s.version     = "0.1.0"
+  s.version     = "0.1.1"
   s.summary     = "Official Ruby SDK for LogSeal"
   s.description = "Audit logging for B2B SaaS — emit, query, verify, and export audit events."
   s.authors     = ["LogSeal"]
