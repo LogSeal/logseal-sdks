@@ -309,5 +309,5 @@ public class LogSealClient {
         return m;
     }
 
-    ObjectMapper getObjectMapper() { return objectMapper; }
+    public ObjectMapper getObjectMapper() { return objectMapper; }
 }
