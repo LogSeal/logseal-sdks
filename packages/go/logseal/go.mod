@@ -1,3 +1,3 @@
-module github.com/LogSeal/logseal-sdks/packages/go/logseal
+module github.com/LogSeal/logseal-go
 
 go 1.21

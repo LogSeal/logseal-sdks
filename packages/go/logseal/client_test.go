@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/LogSeal/logseal-sdks/packages/go/logseal"
+	"github.com/LogSeal/logseal-go"
 )
 
 func newTestClient(handler http.HandlerFunc) *logseal.Client {

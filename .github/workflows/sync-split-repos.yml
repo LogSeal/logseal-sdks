@@ -1,0 +1,37 @@
+name: Sync Split Repos
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/go/logseal/**'
+      - 'packages/php/**'
+
+jobs:
+  sync-go:
+    runs-on: ubuntu-latest
+    if: contains(toJSON(github.event.commits.*.modified), 'packages/go/logseal/') || contains(toJSON(github.event.commits.*.added), 'packages/go/logseal/')
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to logseal-go
+        run: |
+          git subtree split --prefix=packages/go/logseal -b split-go
+          git remote add go-split https://x-access-token:${{ secrets.SPLIT_REPO_TOKEN }}@github.com/LogSeal/logseal-go.git
+          git push go-split split-go:main --force
+
+  sync-php:
+    runs-on: ubuntu-latest
+    if: contains(toJSON(github.event.commits.*.modified), 'packages/php/') || contains(toJSON(github.event.commits.*.added), 'packages/php/')
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to logseal-php
+        run: |
+          git subtree split --prefix=packages/php -b split-php
+          git remote add php-split https://x-access-token:${{ secrets.SPLIT_REPO_TOKEN }}@github.com/LogSeal/logseal-php.git
+          git push php-split split-php:main --force

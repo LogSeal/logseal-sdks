@@ -19,6 +19,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -31,21 +33,27 @@ jobs:
 
       - name: Set version
         run: |
-          # Update version in composer.json
           jq ".version = \"${{ inputs.version }}\"" composer.json > tmp.json && mv tmp.json composer.json
-          # Update version constant in LogSeal.php
           sed -i "s/private const VERSION = .*/private const VERSION = '${{ inputs.version }}';/" src/LogSeal.php
 
       - name: Test
         run: composer test
 
-      - name: Commit and tag
+      - name: Commit version bump
         run: |
           cd ../..
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add packages/php/composer.json packages/php/src/LogSeal.php
           git commit -m "release: logseal-php@${{ inputs.version }}"
-          git tag "php-v${{ inputs.version }}"
-          git push origin HEAD --tags
-        # Packagist auto-updates via webhook when tags are pushed
+          git push origin HEAD
+
+      - name: Sync and tag split repo
+        run: |
+          cd ../..
+          git subtree split --prefix=packages/php -b split-php
+          git remote add php-split https://x-access-token:${{ secrets.SPLIT_REPO_TOKEN }}@github.com/LogSeal/logseal-php.git
+          git push php-split split-php:main --force
+          git tag "v${{ inputs.version }}" split-php
+          git push php-split "v${{ inputs.version }}"
+        # Packagist auto-updates via webhook when tags are pushed to logseal-php

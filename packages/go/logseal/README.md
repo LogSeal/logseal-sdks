@@ -5,7 +5,7 @@ Official Go SDK for [LogSeal](https://logseal.io) — Audit logging for B2B SaaS
 ## Installation
 
 ```bash
-go get github.com/LogSeal/logseal-sdks/packages/go/logseal
+go get github.com/LogSeal/logseal-go
 ```
 
 ## Quick Start
@@ -20,7 +20,7 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/LogSeal/logseal-sdks/packages/go/logseal"
+	"github.com/LogSeal/logseal-go"
 )
 
 func main() {
