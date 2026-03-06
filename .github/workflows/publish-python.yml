@@ -27,7 +27,7 @@ jobs:
           python-version: '3.12'
 
       - name: Install build tools
-        run: pip install hatch twine
+        run: pip install hatch
 
       - name: Set version
         run: sed -i "s/^version = .*/version = \"${{ inputs.version }}\"/" pyproject.toml
@@ -41,10 +41,9 @@ jobs:
         run: hatch build
 
       - name: Publish to PyPI
-        run: twine upload dist/*
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: packages/python/dist/
 
       - name: Commit and tag
         run: |
