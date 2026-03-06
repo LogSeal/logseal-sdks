@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { AuditLogViewer } from '../components/AuditLogViewer.js';
 import type { AuditEvent } from '@logseal/viewer-core';
 
@@ -19,9 +19,7 @@ function makeEvent(id: string, action = 'user.created'): AuditEvent {
 }
 
 function mockFetchSuccess(events: AuditEvent[] = [makeEvent('evt_1')]) {
-  let callCount = 0;
   return vi.fn().mockImplementation((url: string) => {
-    callCount++;
     if (url.includes('/actions')) {
       return Promise.resolve({
         ok: true,
@@ -55,7 +53,7 @@ describe('AuditLogViewer', () => {
   });
 
   it('renders loading state initially', () => {
-    globalThis.fetch = vi.fn().mockReturnValue(new Promise(() => {})); // never resolves
+    globalThis.fetch = vi.fn().mockReturnValue(new Promise(() => {}));
     render(<AuditLogViewer token="vtk_test" />);
     expect(screen.getByRole('status', { name: /loading/i })).toBeInTheDocument();
   });
@@ -65,10 +63,9 @@ describe('AuditLogViewer', () => {
     render(<AuditLogViewer token="vtk_test" />);
 
     await waitFor(() => {
-      expect(screen.getByRole('grid')).toBeInTheDocument();
+      expect(screen.getByRole('table', { name: 'Audit log events' })).toBeInTheDocument();
     });
 
-    // "user.created" appears in both the filter dropdown and the table row
     expect(screen.getAllByText('user.created').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('Jane Doe')).toBeInTheDocument();
     expect(screen.getByText('Report')).toBeInTheDocument();
@@ -97,7 +94,7 @@ describe('AuditLogViewer', () => {
     render(<AuditLogViewer token="vtk_test" />);
 
     await waitFor(() => {
-      expect(screen.getByRole('grid')).toBeInTheDocument();
+      expect(screen.getByRole('table')).toBeInTheDocument();
     });
 
     expect(screen.getByLabelText('Action')).toBeInTheDocument();
@@ -111,7 +108,7 @@ describe('AuditLogViewer', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole('grid')).toBeInTheDocument();
+      expect(screen.getByRole('table')).toBeInTheDocument();
     });
 
     expect(container.querySelector('.my-custom-root')).toBeInTheDocument();
@@ -186,10 +183,9 @@ describe('AuditLogViewer', () => {
     render(<AuditLogViewer token="vtk_test" />);
 
     await waitFor(() => {
-      expect(screen.getByRole('grid')).toBeInTheDocument();
+      expect(screen.getByRole('table')).toBeInTheDocument();
     });
 
-    // The action should be rendered as a badge (span with badge class)
     const badge = screen.getByText('user.created', { selector: '.logseal-action-badge' });
     expect(badge).toBeInTheDocument();
   });
@@ -209,5 +205,65 @@ describe('AuditLogViewer', () => {
     );
 
     expect(screen.getByTestId('custom-header')).toBeInTheDocument();
+  });
+
+  it('opens popover when row is clicked', async () => {
+    globalThis.fetch = mockFetchSuccess();
+    render(<AuditLogViewer token="vtk_test" />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('table')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText('Jane Doe'));
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog', { name: 'Event details' })).toBeInTheDocument();
+    });
+  });
+
+  it('closes popover on Escape key', async () => {
+    globalThis.fetch = mockFetchSuccess();
+    render(<AuditLogViewer token="vtk_test" />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('table')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText('Jane Doe'));
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+  });
+
+  it('closes popover when clicking same row again', async () => {
+    globalThis.fetch = mockFetchSuccess();
+    const { container } = render(<AuditLogViewer token="vtk_test" />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('table')).toBeInTheDocument();
+    });
+
+    // Click to open
+    const row = container.querySelector('.logseal-row') as HTMLElement;
+    fireEvent.click(row);
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    // Click same row again to close
+    fireEvent.click(row);
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
   });
 });

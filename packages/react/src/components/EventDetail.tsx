@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { formatDateTime } from '@logseal/viewer-core';
 import type { EventDetailProps } from '../types.js';
 
 export function EventDetail({ event, className }: EventDetailProps) {
+  const [hashExpanded, setHashExpanded] = useState(false);
+
   return (
     <div className={`logseal-detail ${className || ''}`}>
       <div className="logseal-detail__section">
@@ -86,7 +89,13 @@ export function EventDetail({ event, className }: EventDetailProps) {
         <dl className="logseal-detail__list">
           <dt>Event Hash</dt>
           <dd>
-            <code className="logseal-detail__hash">{event.event_hash}</code>
+            <code
+              className={`logseal-detail__hash ${hashExpanded ? 'logseal-detail__hash--expanded' : ''}`}
+              onClick={() => setHashExpanded((v) => !v)}
+              title={hashExpanded ? 'Click to collapse' : 'Click to expand'}
+            >
+              {event.event_hash}
+            </code>
           </dd>
           <dt>Occurred At</dt>
           <dd>{formatDateTime(event.occurred_at)}</dd>

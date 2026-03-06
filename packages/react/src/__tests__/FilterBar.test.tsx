@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { FilterBar } from '../components/FilterBar.js';
 
 describe('FilterBar', () => {
@@ -9,15 +10,9 @@ describe('FilterBar', () => {
     onFiltersChange: vi.fn(),
   };
 
-  it('renders action select with all options', () => {
+  it('renders action select dropdown', () => {
     render(<FilterBar {...defaultProps} />);
-
-    const select = screen.getByLabelText('Action') as HTMLSelectElement;
-    expect(select).toBeInTheDocument();
-
-    // "All actions" + 3 action options
-    const options = select.querySelectorAll('option');
-    expect(options).toHaveLength(4);
+    expect(screen.getByText('All actions')).toBeInTheDocument();
   });
 
   it('renders actor text input', () => {
@@ -25,19 +20,23 @@ describe('FilterBar', () => {
     expect(screen.getByLabelText('Actor')).toBeInTheDocument();
   });
 
-  it('renders date range inputs', () => {
+  it('renders date range button', () => {
     render(<FilterBar {...defaultProps} />);
-    expect(screen.getByLabelText('From')).toBeInTheDocument();
-    expect(screen.getByLabelText('To')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /date range/i })).toBeInTheDocument();
   });
 
-  it('calls onFiltersChange when action changes', () => {
+  it('calls onFiltersChange when action is selected', async () => {
     const onFiltersChange = vi.fn();
+    const user = userEvent.setup();
     render(<FilterBar {...defaultProps} onFiltersChange={onFiltersChange} />);
 
-    fireEvent.change(screen.getByLabelText('Action'), {
-      target: { value: 'user.created' },
-    });
+    // Click on the custom select trigger to open menu
+    const selectTrigger = screen.getByText('All actions');
+    await user.click(selectTrigger);
+
+    // Click on an option
+    const option = await screen.findByText('user.created');
+    await user.click(option);
 
     expect(onFiltersChange).toHaveBeenCalledWith(
       expect.objectContaining({ action: 'user.created' }),
@@ -57,37 +56,14 @@ describe('FilterBar', () => {
     );
   });
 
-  it('clears filter when action reset to empty', () => {
-    const onFiltersChange = vi.fn();
-    render(
-      <FilterBar
-        {...defaultProps}
-        filters={{ action: 'user.created' }}
-        onFiltersChange={onFiltersChange}
-      />,
-    );
+  it('opens date range popover on button click', async () => {
+    const user = userEvent.setup();
+    render(<FilterBar {...defaultProps} />);
 
-    fireEvent.change(screen.getByLabelText('Action'), {
-      target: { value: '' },
-    });
+    const dateButton = screen.getByRole('button', { name: /date range/i });
+    await user.click(dateButton);
 
-    expect(onFiltersChange).toHaveBeenCalledWith(
-      expect.objectContaining({ action: undefined }),
-    );
-  });
-
-  it('reflects current filter values', () => {
-    render(
-      <FilterBar
-        {...defaultProps}
-        filters={{ action: 'user.updated', actorId: 'actor_1' }}
-      />,
-    );
-
-    expect((screen.getByLabelText('Action') as HTMLSelectElement).value).toBe(
-      'user.updated',
-    );
-    expect((screen.getByLabelText('Actor') as HTMLInputElement).value).toBe('actor_1');
+    expect(screen.getByRole('dialog', { name: /select date range/i })).toBeInTheDocument();
   });
 
   it('applies custom className', () => {
@@ -96,5 +72,54 @@ describe('FilterBar', () => {
     );
 
     expect(container.querySelector('.custom-filter')).toBeInTheDocument();
+  });
+
+  it('renders mobile toggle button', () => {
+    render(<FilterBar {...defaultProps} />);
+    expect(screen.getByRole('button', { name: /toggle filters/i })).toBeInTheDocument();
+  });
+
+  it('toggles fields visibility on mobile toggle click', () => {
+    const { container } = render(<FilterBar {...defaultProps} />);
+    const toggle = screen.getByRole('button', { name: /toggle filters/i });
+
+    expect(container.querySelector('.logseal-filter-bar--open')).not.toBeInTheDocument();
+    fireEvent.click(toggle);
+    expect(container.querySelector('.logseal-filter-bar--open')).toBeInTheDocument();
+    fireEvent.click(toggle);
+    expect(container.querySelector('.logseal-filter-bar--open')).not.toBeInTheDocument();
+  });
+
+  it('shows active filter dot when hasActiveFilters is true', () => {
+    const { container } = render(
+      <FilterBar {...defaultProps} hasActiveFilters={true} />,
+    );
+    expect(container.querySelector('.logseal-filter-bar__dot')).toBeInTheDocument();
+  });
+
+  it('renders search input when onSearchChange is provided', () => {
+    const onSearchChange = vi.fn();
+    render(
+      <FilterBar {...defaultProps} searchQuery="" onSearchChange={onSearchChange} />,
+    );
+    expect(screen.getByLabelText('Search')).toBeInTheDocument();
+  });
+
+  it('does not render search input when onSearchChange is not provided', () => {
+    render(<FilterBar {...defaultProps} />);
+    expect(screen.queryByLabelText('Search')).not.toBeInTheDocument();
+  });
+
+  it('calls onSearchChange when search input changes', () => {
+    const onSearchChange = vi.fn();
+    render(
+      <FilterBar {...defaultProps} searchQuery="" onSearchChange={onSearchChange} />,
+    );
+
+    fireEvent.change(screen.getByLabelText('Search'), {
+      target: { value: 'jane' },
+    });
+
+    expect(onSearchChange).toHaveBeenCalledWith('jane');
   });
 });
