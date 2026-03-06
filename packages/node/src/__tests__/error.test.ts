@@ -9,7 +9,7 @@ describe('LogSealError', () => {
         code: 'missing_required_field',
         message: "The 'action' field is required.",
         param: 'action',
-        doc_url: 'https://docs.logseal.dev/errors/missing_required_field',
+        doc_url: 'https://docs.logseal.io/errors/missing_required_field',
       },
       400
     );
@@ -18,7 +18,7 @@ describe('LogSealError', () => {
     expect(error.code).toBe('missing_required_field');
     expect(error.message).toBe("The 'action' field is required.");
     expect(error.param).toBe('action');
-    expect(error.docUrl).toBe('https://docs.logseal.dev/errors/missing_required_field');
+    expect(error.docUrl).toBe('https://docs.logseal.io/errors/missing_required_field');
     expect(error.statusCode).toBe(400);
   });
 
@@ -71,7 +71,7 @@ describe('LogSealError', () => {
         code: 'rate_limit_exceeded',
         message: 'Rate limit exceeded.',
         param: 'events',
-        doc_url: 'https://docs.logseal.dev/rate-limits',
+        doc_url: 'https://docs.logseal.io/rate-limits',
       },
       429
     );
@@ -84,7 +84,7 @@ describe('LogSealError', () => {
         code: 'rate_limit_exceeded',
         message: 'Rate limit exceeded.',
         param: 'events',
-        doc_url: 'https://docs.logseal.dev/rate-limits',
+        doc_url: 'https://docs.logseal.io/rate-limits',
       },
     });
   });

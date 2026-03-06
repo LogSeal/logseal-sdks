@@ -84,7 +84,7 @@ export class LogSeal {
     }
 
     this.apiKey = config.apiKey;
-    this.baseUrl = config.baseUrl ?? 'https://api.logseal.dev';
+    this.baseUrl = config.baseUrl ?? 'https://api.logseal.io';
     this.batchSize = config.batchSize ?? 100;
     this.flushInterval = config.flushIntervalMs ?? 5000;
     this.queue = [];

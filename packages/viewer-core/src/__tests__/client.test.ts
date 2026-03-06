@@ -41,7 +41,7 @@ describe('ViewerClient', () => {
     await client.listEvents();
 
     const [url] = fetchMock.mock.calls[0];
-    expect(url).toContain('https://api.logseal.dev/v1/events');
+    expect(url).toContain('https://api.logseal.io/v1/events');
   });
 
   it('uses custom base URL', async () => {

@@ -1,4 +1,4 @@
-export const DEFAULT_BASE_URL = 'https://api.logseal.dev';
+export const DEFAULT_BASE_URL = 'https://api.logseal.io';
 export const DEFAULT_PAGE_SIZE = 25;
 
 export const CSS_VAR_PREFIX = '--logseal';
