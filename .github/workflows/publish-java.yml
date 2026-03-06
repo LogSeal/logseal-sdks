@@ -50,6 +50,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add packages/java/pom.xml
-          git commit -m "release: logseal-java@${{ inputs.version }}"
+          git diff --cached --quiet || git commit -m "release: logseal-java@${{ inputs.version }}"
           git tag "java-v${{ inputs.version }}"
           git push origin HEAD --tags
