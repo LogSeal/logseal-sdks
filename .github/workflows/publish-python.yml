@@ -1,0 +1,57 @@
+name: Publish Python SDK
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g. 0.1.0)'
+        required: true
+        type: string
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    defaults:
+      run:
+        working-directory: packages/python
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install build tools
+        run: pip install hatch twine
+
+      - name: Set version
+        run: sed -i "s/^version = .*/version = \"${{ inputs.version }}\"/" pyproject.toml
+
+      - name: Install and test
+        run: |
+          pip install -e ".[dev]"
+          pytest tests/ -v
+
+      - name: Build
+        run: hatch build
+
+      - name: Publish to PyPI
+        run: twine upload dist/*
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+
+      - name: Commit and tag
+        run: |
+          cd ../..
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add packages/python/pyproject.toml
+          git commit -m "release: logseal-python@${{ inputs.version }}"
+          git tag "python-v${{ inputs.version }}"
+          git push origin HEAD --tags
