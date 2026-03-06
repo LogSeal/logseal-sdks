@@ -9,19 +9,35 @@ namespace LogSeal\Exception;
  */
 class LogSealException extends \RuntimeException
 {
+    public readonly string $type;
+    public readonly string $errorCode;
+    public readonly ?string $param;
+    public readonly ?string $docUrl;
+    public readonly int $statusCode;
+
     public function __construct(
-        public readonly string $type,
-        public readonly string $code,
+        string $type,
+        string $code,
         string $message,
-        public readonly ?string $param = null,
-        public readonly ?string $docUrl = null,
-        public readonly int $statusCode = 400,
+        ?string $param = null,
+        ?string $docUrl = null,
+        int $statusCode = 400,
     ) {
         parent::__construct($message, $statusCode);
+        $this->type = $type;
+        $this->errorCode = $code;
+        $this->param = $param;
+        $this->docUrl = $docUrl;
+        $this->statusCode = $statusCode;
+    }
+
+    public function getErrorCode(): string
+    {
+        return $this->errorCode;
     }
 
     public function __toString(): string
     {
-        return sprintf('[%s] %s: %s', $this->type, $this->code, $this->getMessage());
+        return sprintf('[%s] %s: %s', $this->type, $this->errorCode, $this->getMessage());
     }
 }

@@ -78,7 +78,7 @@ class LogSealTest extends TestCase
             statusCode: 401,
         );
         $this->assertEquals('authentication_error', $e->type);
-        $this->assertEquals('invalid_api_key', $e->code);
+        $this->assertEquals('invalid_api_key', $e->errorCode);
         $this->assertEquals('Invalid API key', $e->getMessage());
         $this->assertEquals(401, $e->statusCode);
     }

@@ -148,7 +148,7 @@ All API errors are thrown as `LogSealException`:
 | Property | Description |
 |----------|-------------|
 | `$type` | Error category (`authentication_error`, `validation_error`, etc.) |
-| `$code` | Machine-readable code (`invalid_api_key`, `missing_required_field`, etc.) |
+| `$errorCode` | Machine-readable code (`invalid_api_key`, `missing_required_field`, etc.) |
 | `getMessage()` | Human-readable description |
 | `$param` | Request parameter that caused the error (if applicable) |
 | `$statusCode` | HTTP status code |
