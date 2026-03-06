@@ -1,0 +1,29 @@
+{
+    "name": "logseal/logseal-php",
+    "description": "Official PHP SDK for LogSeal — Audit logging for B2B SaaS",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["audit", "logging", "audit-log", "compliance", "soc2", "b2b", "saas"],
+    "homepage": "https://github.com/LogSeal/logseal-sdks/tree/main/packages/php",
+    "require": {
+        "php": ">=8.1",
+        "guzzlehttp/guzzle": "^7.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0",
+        "guzzlehttp/guzzle": "^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "LogSeal\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LogSeal\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    }
+}
