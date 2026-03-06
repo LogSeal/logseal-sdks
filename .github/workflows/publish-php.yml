@@ -1,0 +1,51 @@
+name: Publish PHP SDK
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g. 0.1.0)'
+        required: true
+        type: string
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    defaults:
+      run:
+        working-directory: packages/php
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: Install dependencies
+        run: composer install
+
+      - name: Set version
+        run: |
+          # Update version in composer.json
+          jq ".version = \"${{ inputs.version }}\"" composer.json > tmp.json && mv tmp.json composer.json
+          # Update version constant in LogSeal.php
+          sed -i "s/private const VERSION = .*/private const VERSION = '${{ inputs.version }}';/" src/LogSeal.php
+
+      - name: Test
+        run: composer test
+
+      - name: Commit and tag
+        run: |
+          cd ../..
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add packages/php/composer.json packages/php/src/LogSeal.php
+          git commit -m "release: logseal-php@${{ inputs.version }}"
+          git tag "php-v${{ inputs.version }}"
+          git push origin HEAD --tags
+        # Packagist auto-updates via webhook when tags are pushed

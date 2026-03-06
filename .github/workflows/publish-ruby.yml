@@ -1,0 +1,57 @@
+name: Publish Ruby SDK
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g. 0.1.0)'
+        required: true
+        type: string
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    defaults:
+      run:
+        working-directory: packages/ruby
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          working-directory: packages/ruby
+
+      - name: Set version
+        run: |
+          sed -i "s/VERSION = .*/VERSION = \"${{ inputs.version }}\"/" lib/logseal/version.rb
+          sed -i "s/s.version.*/s.version     = \"${{ inputs.version }}\"/" logseal.gemspec
+
+      - name: Test
+        run: bundle exec rspec
+
+      - name: Build gem
+        run: gem build logseal.gemspec
+
+      - name: Publish to RubyGems
+        run: |
+          mkdir -p ~/.gem
+          echo "---" > ~/.gem/credentials
+          echo ":rubygems_api_key: ${{ secrets.RUBYGEMS_API_KEY }}" >> ~/.gem/credentials
+          chmod 0600 ~/.gem/credentials
+          gem push logseal-${{ inputs.version }}.gem
+
+      - name: Commit and tag
+        run: |
+          cd ../..
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add packages/ruby/lib/logseal/version.rb packages/ruby/logseal.gemspec
+          git commit -m "release: logseal-ruby@${{ inputs.version }}"
+          git tag "ruby-v${{ inputs.version }}"
+          git push origin HEAD --tags
