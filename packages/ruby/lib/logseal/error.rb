@@ -24,7 +24,7 @@ module LogSeal
     end
 
     def to_s
-      "[#{type}] #{code}: #{message}"
+      "[#{type}] #{code}: #{super}"
     end
   end
 end
