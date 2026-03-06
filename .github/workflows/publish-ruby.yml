@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      id-token: write
     defaults:
       run:
         working-directory: packages/ruby
@@ -39,12 +40,7 @@ jobs:
         run: gem build logseal.gemspec
 
       - name: Publish to RubyGems
-        run: |
-          mkdir -p ~/.gem
-          echo "---" > ~/.gem/credentials
-          echo ":rubygems_api_key: ${{ secrets.RUBYGEMS_API_KEY }}" >> ~/.gem/credentials
-          chmod 0600 ~/.gem/credentials
-          gem push logseal-${{ inputs.version }}.gem
+        uses: rubygems/release-gem@v1
 
       - name: Commit and tag
         run: |
