@@ -1,0 +1,57 @@
+{
+  "name": "@logseal/compliance",
+  "version": "0.1.0",
+  "description": "Pre-built compliance event schemas for LogSeal - SOC 2, HIPAA, and GDPR",
+  "type": "module",
+  "bin": {
+    "logseal-compliance": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "logseal",
+    "audit",
+    "compliance",
+    "soc2",
+    "hipaa",
+    "gdpr",
+    "event-schemas"
+  ],
+  "author": "LogSeal",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LogSeal/logseal-sdks.git",
+    "directory": "packages/compliance"
+  },
+  "homepage": "https://github.com/LogSeal/logseal-sdks/tree/main/packages/compliance#readme",
+  "bugs": {
+    "url": "https://github.com/LogSeal/logseal-sdks/issues"
+  },
+  "dependencies": {
+    "@logseal/node": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3",
+    "vitest": "^3.0.0"
+  }
+}
