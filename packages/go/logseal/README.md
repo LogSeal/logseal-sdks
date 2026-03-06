@@ -70,7 +70,7 @@ func main() {
 
 ```go
 client := logseal.New("sk_live_...",
-	logseal.WithBaseURL("https://api.logseal.dev"), // Optional override
+	logseal.WithBaseURL("https://api.logseal.io"), // Optional override
 	logseal.WithBatchSize(100),                     // Events to buffer before auto-flushing
 	logseal.WithFlushInterval(5 * time.Second),     // Time between automatic flushes
 	logseal.WithMaxRetries(3),                      // Retry attempts on 429 / 5xx

@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	defaultBaseURL      = "https://api.logseal.dev"
+	defaultBaseURL      = "https://api.logseal.io"
 	defaultBatchSize    = 100
 	defaultFlushInterval = 5 * time.Second
 	defaultMaxRetries   = 3
