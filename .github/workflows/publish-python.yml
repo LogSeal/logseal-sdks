@@ -51,6 +51,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add packages/python/pyproject.toml
-          git commit -m "release: logseal-python@${{ inputs.version }}"
+          git diff --cached --quiet || git commit -m "release: logseal-python@${{ inputs.version }}"
           git tag "python-v${{ inputs.version }}"
           git push origin HEAD --tags
