@@ -30,7 +30,7 @@ use LogSeal\Resource\Exports;
  */
 class LogSeal
 {
-    private const VERSION = '0.1.0';
+    private const VERSION = '0.1.1';
     private const DEFAULT_BASE_URL = 'https://api.logseal.io';
     private const DEFAULT_BATCH_SIZE = 100;
     private const DEFAULT_FLUSH_INTERVAL = 5;
