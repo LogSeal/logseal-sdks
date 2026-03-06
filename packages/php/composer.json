@@ -12,7 +12,7 @@
     "b2b",
     "saas"
   ],
-  "homepage": "https://github.com/LogSeal/logseal-sdks/tree/main/packages/php",
+  "homepage": "https://github.com/LogSeal/logseal-php",
   "require": {
     "php": ">=8.1",
     "guzzlehttp/guzzle": "^7.0"

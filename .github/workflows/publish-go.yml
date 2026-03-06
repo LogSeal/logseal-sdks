@@ -16,6 +16,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Go
         uses: actions/setup-go@v5
@@ -26,9 +28,10 @@ jobs:
         working-directory: packages/go/logseal
         run: go test ./... -v
 
-      - name: Tag and push
+      - name: Sync and tag split repo
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag "go-v${{ inputs.version }}"
-          git push origin "go-v${{ inputs.version }}"
+          git subtree split --prefix=packages/go/logseal -b split-go
+          git remote add go-split https://x-access-token:${{ secrets.SPLIT_REPO_TOKEN }}@github.com/LogSeal/logseal-go.git
+          git push go-split split-go:main --force
+          git tag "v${{ inputs.version }}" split-go
+          git push go-split "v${{ inputs.version }}"
