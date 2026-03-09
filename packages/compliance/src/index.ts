@@ -1,5 +1,5 @@
 export { installTemplate } from './installer.js';
-export { getTemplate, listTemplates, soc2, hipaa, gdpr } from './templates/index.js';
+export { fetchTemplate, fetchTemplateList } from './api.js';
 export type {
   ComplianceTemplate,
   SchemaTemplate,
