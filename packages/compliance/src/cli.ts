@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { installTemplate } from './installer.js';
-import { listTemplates, getTemplate } from './templates/index.js';
+import { fetchTemplateList, fetchTemplate } from './api.js';
 import type { TemplateName } from './types.js';
 
 const HELP = `
@@ -14,7 +14,7 @@ Usage:
 
 Options:
   --api-key <key>        LogSeal API key (or set LOGSEAL_API_KEY)
-  --base-url <url>       API base URL (default: https://api.logseal.io)
+  --base-url <url>       API base URL (default: https://api.logseal.io/v1)
   --environment <env>    Target environment: test or live (default: test)
   --dry-run              Preview what will be installed without making changes
   --help                 Show this help message
@@ -63,35 +63,46 @@ function getApiKey(flags: Record<string, string | boolean>): string {
   return key;
 }
 
-async function commandList() {
-  const templates = listTemplates();
+async function commandList(flags: Record<string, string | boolean>) {
+  const summaries = await fetchTemplateList({
+    baseUrl: flags.baseUrl as string | undefined,
+  });
+
   console.log('\nAvailable compliance templates:\n');
-  for (const t of templates) {
-    console.log(`  ${t.id.padEnd(8)} ${t.name.padEnd(8)} ${t.schemas.length} schemas — ${t.description}`);
+  for (const t of summaries) {
+    console.log(`  ${t.id.padEnd(8)} ${t.name.padEnd(8)} ${t.schema_count} schemas — ${t.description}`);
   }
   console.log('');
 }
 
-async function commandShow(name: string) {
-  const template = getTemplate(name);
-  if (!template) {
-    const available = listTemplates().map((t) => t.id).join(', ');
-    console.error(`Unknown template "${name}". Available: ${available}`);
-    process.exit(1);
-  }
+async function commandShow(name: string, flags: Record<string, string | boolean>) {
+  const template = await fetchTemplate(name, {
+    baseUrl: flags.baseUrl as string | undefined,
+  });
 
-  console.log(`\n${template.name} (${template.id}) — ${template.schemas.length} schemas\n`);
+  console.log(`\n${template.name} (${template.id}) v${template.version} — ${template.schemas.length} schemas\n`);
   console.log(template.description);
   console.log('');
 
+  // Group by category if available
+  const byCategory = new Map<string, typeof template.schemas>();
   for (const schema of template.schemas) {
-    const targets = schema.targetTypes.join(', ');
-    console.log(`  ${schema.action.padEnd(35)} [${targets}]`);
-    if (schema.description) {
-      console.log(`  ${''.padEnd(35)} ${schema.description}`);
-    }
+    const cat = schema.category ?? 'General';
+    if (!byCategory.has(cat)) byCategory.set(cat, []);
+    byCategory.get(cat)!.push(schema);
   }
-  console.log('');
+
+  for (const [category, schemas] of byCategory) {
+    console.log(`  ${category}`);
+    for (const schema of schemas) {
+      const targets = schema.targetTypes.join(', ');
+      console.log(`    ${schema.action.padEnd(35)} [${targets}]`);
+      if (schema.description) {
+        console.log(`    ${''.padEnd(35)} ${schema.description}`);
+      }
+    }
+    console.log('');
+  }
 }
 
 async function commandInstall(
@@ -108,11 +119,13 @@ async function commandInstall(
     process.exit(1);
   }
 
-  // Validate all template names before starting
+  // Validate all template names exist on the API before starting
+  const available = await fetchTemplateList({ baseUrl });
+  const availableIds = new Set(available.map((t) => t.id));
+
   for (const name of templateNames) {
-    if (!getTemplate(name)) {
-      const available = listTemplates().map((t) => t.id).join(', ');
-      console.error(`Unknown template "${name}". Available: ${available}`);
+    if (!availableIds.has(name)) {
+      console.error(`Unknown template "${name}". Available: ${[...availableIds].join(', ')}`);
       process.exit(1);
     }
   }
@@ -125,7 +138,7 @@ async function commandInstall(
   console.log('');
 
   for (const name of templateNames) {
-    const template = getTemplate(name)!;
+    const template = await fetchTemplate(name, { baseUrl });
     console.log(`Installing ${template.name} (${template.schemas.length} schemas)...`);
 
     const result = await installTemplate(name as TemplateName, {
@@ -172,14 +185,14 @@ async function main() {
 
   switch (command) {
     case 'list':
-      await commandList();
+      await commandList(flags);
       break;
     case 'show':
       if (!args[1]) {
         console.error('Usage: npx @logseal/compliance show <template>');
         process.exit(1);
       }
-      await commandShow(args[1]);
+      await commandShow(args[1], flags);
       break;
     case 'install':
       if (args.length < 2) {

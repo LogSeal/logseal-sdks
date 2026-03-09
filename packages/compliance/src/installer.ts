@@ -1,16 +1,12 @@
 import { LogSeal } from '@logseal/node';
-import { getTemplate, listTemplates } from './templates/index.js';
+import { fetchTemplate } from './api.js';
 import type { InstallOptions, InstallResult, TemplateName } from './types.js';
 
 export async function installTemplate(
   name: TemplateName,
   options: InstallOptions
 ): Promise<InstallResult> {
-  const template = getTemplate(name);
-  if (!template) {
-    const available = listTemplates().map((t) => t.id).join(', ');
-    throw new Error(`Unknown template "${name}". Available: ${available}`);
-  }
+  const template = await fetchTemplate(name, { baseUrl: options.baseUrl });
 
   if (options.dryRun) {
     return {

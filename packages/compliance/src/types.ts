@@ -1,6 +1,8 @@
 export interface SchemaTemplate {
   action: string;
   description: string;
+  category?: string;
+  criteria?: string[];
   targetTypes: string[];
   metadataSchema?: Record<string, unknown>;
 }
@@ -11,9 +13,11 @@ export interface ComplianceTemplate {
   description: string;
   version: string;
   schemas: SchemaTemplate[];
+  schema_count?: number;
+  object?: string;
 }
 
-export type TemplateName = 'soc2' | 'hipaa' | 'gdpr';
+export type TemplateName = string;
 
 export interface InstallOptions {
   apiKey: string;
